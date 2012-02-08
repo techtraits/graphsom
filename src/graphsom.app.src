@@ -1,0 +1,12 @@
+{application, graphsom,
+ [
+  {description, "A graphite client for metrics collected using folsom"},
+  {vsn, "0.1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { graphsom_app, []}},
+  {env, []}
+ ]}.

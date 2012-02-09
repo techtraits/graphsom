@@ -21,7 +21,7 @@ Usage
 Authors 
 ------
 
-Muhammad Bilal Sheikh <bilal@techtraits.com>
+Muhammad Bilal Sheikh <bilal@techtraits.com>  
 Usman Ismail <usman@techtraits.com>
 
 

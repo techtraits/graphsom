@@ -31,7 +31,7 @@ format_metric(MetricName, MetricType, MetricValue) ->
 send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
     case gen_tcp:connect(GraphiteHost, GraphitePort, [list, {packet, 0}]) of
         {ok, Sock} ->
-            gen_tcp:send(Sock, MetricStr),
+            gen_tcp:send(Sock, MetricStr), 
             gen_tcp:close(Sock),
             ok;
         {error, Reason} ->

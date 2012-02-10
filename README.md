@@ -26,8 +26,7 @@ Make [rebar](https://github.com/basho/rebar) executable
 
     chmod u+x rebar
     
-Get all dependencies (only `folsom`)
-[folsom](https://github.com/boundary/folsom)
+Get all dependencies (only [folsom](https://github.com/boundary/folsom))
 
     mkdir deps
     ./rebar get-deps
@@ -44,7 +43,7 @@ Start graphsom application:
 
     application:start(graphsom).
 
-Graphsom will dump all folsom metrics after every `30 seconds`
+Graphsom will dump all `folsom metrics` every `30 seconds`
 to the local graphite backend.
 
 **Note:** Graphsom takes care of starting `folsom`

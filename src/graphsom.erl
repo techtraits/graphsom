@@ -24,14 +24,22 @@ format_metric(MetricName, MetricType, MetricValue) ->
     CurrentTime = current_time(),
     case MetricType of
     	gauge ->
-    		io_lib:format("~p ~p ~w ~n", [MetricName,MetricValue, CurrentTime])
+    		io_lib:format("~p ~p ~w~n", [MetricName,MetricValue, CurrentTime]);
+    	counter ->
+    		io_lib:format("~p ~p ~w~n", [MetricName,MetricValue, CurrentTime]);
+    	meter ->
+    		[_, {one, One_Mean}, {five,Five_Mean}, {fifteen,Fifteen_Mean}, {mean, Mean}, _] = MetricValue,
+    		StringAcc1 = string:concat([], io_lib:format("~p.last_one_mean ~p ~w~n", [MetricName,One_Mean, CurrentTime])),
+    		StringAcc2 = string:concat(StringAcc1, io_lib:format("~p.last_five_mean ~p ~w~n", [MetricName,Five_Mean, CurrentTime])),
+    		StringAcc3 = string:concat(StringAcc2, io_lib:format("~p.last_fifteen_mean ~p ~w~n", [MetricName,Fifteen_Mean, CurrentTime])),
+    		string:concat(StringAcc3, io_lib:format("~p.all_time_mean ~p ~w~n", [MetricName,Mean, CurrentTime]))
     	end.
 
    
 send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
     case gen_tcp:connect(GraphiteHost, GraphitePort, [list, {packet, 0}]) of
         {ok, Sock} ->
-            gen_tcp:send(Sock, MetricStr), 
+            gen_tcp:send(Sock, MetricStr),
             gen_tcp:close(Sock),
             ok;
         {error, Reason} ->

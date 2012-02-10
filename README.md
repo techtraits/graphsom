@@ -13,3 +13,7 @@ Status
 * Support for folsom's gauge metrics
 * Support other metric types and visualization backends coming very soon
 
+Authors
+-------
+
+Bilal Sheikh (<bilal@techtraits.com>) <br /> Usman Ismail (<usman@techtraits.com>)

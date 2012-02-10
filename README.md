@@ -48,6 +48,20 @@ to the local graphite backend.
 
 **Note:** Graphsom takes care of starting `folsom`
 
+Add Some metrics:
+
+    folsom_metrics:new_counter(metric_name_1).
+    folsom_metrics:new_gauge(metric_name_2).
+    folsom_metrics:new_meter(metric_name_3).
+
+Update values for the metrics:
+
+	folsom_metrics:notify({metric_name_1, {inc, 100}}).
+    folsom_metrics:notify({metric_name_2, 200}).
+    folsom_metrics:notify({metric_name_3, 300}).
+
+Check graphite for the values:    
+
 Authors 
 ------
 

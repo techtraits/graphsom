@@ -9,19 +9,50 @@ website being really ghetto.
 Status
 ------
 
-* Support for folsom's gauge metrics
-* Support other metric types and visualization backends coming very soon
+* Supports [folsom's](https://github.com/boundary/folsom) `gauge`,
+  `counter` and `meter` metrics
+* Support for other metric types (`histogram` and `history`) and other
+  visualization backends is coming very soon
 
-Quick demo
-------
+Playing Around
+--------------
 
-Usage
-------
+**Prerequisite:** [Install](http://graphite.wikidot.com/installation)
+  and run graphite locally
+  
+In graphsom's root directory:
+
+Make [rebar](https://github.com/basho/rebar) executable
+    chmod u+x rebar
+    
+Get graphsom's only dependency, namely
+[folsom](https://github.com/boundary/folsom)
+
+    mkdir deps
+    ./rebar get-deps
+    
+Compile
+
+    ./rebar compile
+
+Start an erlang shell (eshell):
+
+    erl -pa ebin/ -pa deps/folsom/ebin/
+    
+In eshell start graphsom application:
+
+    application:start(graphsom).
+
+Graphsom will dump all folsom metrics after every `30 seconds`
+to the local graphite backend. 
+**Note:** Graphsom takes care of starting `folsom`
+
+
 
 Authors 
 ------
 
-Muhammad Bilal Sheikh <bilal@techtraits.com>  
-Usman Ismail <usman@techtraits.com>
+Bilal Sheikh (<bilal@techtraits.com>)  
+Usman Ismail (<usman@techtraits.com>)
 
 

@@ -1,4 +1,4 @@
--module(graphsom_server).
+-module(graphsom_timer).
 -behaviour(gen_server).
 
  -export([init/1, handle_call/3, handle_cast/2]). 
@@ -6,7 +6,7 @@
  
  -export([stop/0]).
 
- -export([start/1]).
+ -export([start_link/3]).
   
  -record(state, {report_interval, 	% ms interval between stat reporting
                  report_timer, 		% TRef of interval timer
@@ -14,12 +14,14 @@
                  graphite_port 		% graphite server port
                }).               
                
-start([ReportIntervalMs, GraphiteHost, GraphitePort]) ->  
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort) ->
+    io:format("graphsom_timer start called ~n"),
 	gen_server:start_link({local, ?MODULE}, ?MODULE,  
                               [ReportIntervalMs, GraphiteHost, GraphitePort], []).
 
 init([ReportIntervalMs, GraphiteHost, GraphitePort]) ->
-    error_logger:info_msg("graphsom will report stats to ~p:~w every ~wms\n",
+    io:format("graphsom timer started ....~n"),
+    io:format("graphsom will report stats to ~p:~p every ~p ms ~n",
                           [ GraphiteHost, GraphitePort, ReportIntervalMs ]),
     {ok, Tref} = timer:apply_interval(ReportIntervalMs, gen_server, cast,  [?MODULE, {report}]),                          
     State = #state{ 
@@ -32,7 +34,9 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort]) ->
 
 handle_cast({report}, State) -> 
     Metrics = folsom_metrics:get_metrics(),
+    io:format("List of metrics: ~w", [Metrics]),
     MetricStr = collect_metrics([], Metrics),
+    io:format("Metric string: ~p", [MetricStr]),
     send_to_graphite(lists:flatten(MetricStr),
                      State#state.graphite_host, State#state.graphite_port),
     {noreply, State};
@@ -68,7 +72,7 @@ collect_metrics(MetricStr, [MetricName | T]) ->
                      MetricValue ->
                          error_logger:info_msg("Got value ~p for metric ~p \n",[MetricValue, MetricName]),
                          CurrentTime = current_time(),
-                         string:concat(MetricStr , io_lib:format("~p ~p ~w ~n",
+                         string:concat(MetricStr , io_lib:format("p ~p ~w ~n",
                                                                  [MetricName
                                                                   ,MetricValue, CurrentTime]))
                  end,

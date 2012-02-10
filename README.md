@@ -20,12 +20,13 @@ Playing Around
 **Prerequisite:** [Install](http://graphite.wikidot.com/installation)
   and run graphite locally
   
-In graphsom's root directory:
+**(In `graphsom's` root directory)**
 
 Make [rebar](https://github.com/basho/rebar) executable
+
     chmod u+x rebar
     
-Get graphsom's only dependency, namely
+Get all dependencies (only `folsom`)
 [folsom](https://github.com/boundary/folsom)
 
     mkdir deps
@@ -39,15 +40,14 @@ Start an erlang shell (eshell):
 
     erl -pa ebin/ -pa deps/folsom/ebin/
     
-In eshell start graphsom application:
+Start graphsom application:
 
     application:start(graphsom).
 
 Graphsom will dump all folsom metrics after every `30 seconds`
-to the local graphite backend. 
+to the local graphite backend.
+
 **Note:** Graphsom takes care of starting `folsom`
-
-
 
 Authors 
 ------

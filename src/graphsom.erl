@@ -9,17 +9,24 @@ collect_metrics(MetricStr, [MetricName | T]) ->
                      {Error, Reason} ->
                          error_logger:info_msg("Error when getting metric from folsom_metrics: error: ~p, reason: ~p",[Error, Reason]),
                          MetricStr;
-                     MetricValue ->
-                         error_logger:info_msg("Got value ~p for metric ~p \n",[MetricValue, MetricName]),
-                         CurrentTime = current_time(),
-                         string:concat(MetricStr , io_lib:format("p ~p ~w ~n",
-                                                                 [MetricName
-                                                                  ,MetricValue, CurrentTime]))
+                     MetricValue ->                         
+                         [{MetricName,[{type,MetricType}]}] = folsom_metrics:get_metric_info(MetricName),
+                         error_logger:info_msg("Got value ~p for metric ~p of type ~p \n",[MetricValue, MetricName, MetricType]),                     
+                         string:concat(MetricStr , format_metric(MetricName, MetricType, MetricValue))
+
                  end,
     collect_metrics(MetricStr2, T);
 
 collect_metrics(MetricStr, []) ->	
 	MetricStr.
+
+format_metric(MetricName, MetricType, MetricValue) ->
+    CurrentTime = current_time(),
+    case MetricType of
+    	gauge ->
+    		io_lib:format("~p ~p ~w ~n", [MetricName,MetricValue, CurrentTime])
+    	end.
+
    
 send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
     case gen_tcp:connect(GraphiteHost, GraphitePort, [list, {packet, 0}]) of

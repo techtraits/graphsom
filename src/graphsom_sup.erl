@@ -48,7 +48,7 @@ start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix) ->
 
 -spec init(list()) -> {ok, term()}.
 
-init(Parms = [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
+init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
     %% adding folsom_sup and graphsom to graphsom_sup's supervision tree
     Folsom = {folsom,
               {folsom_sup, start_link, []},

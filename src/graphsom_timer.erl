@@ -4,29 +4,30 @@
 -export([init/1, handle_call/3, handle_cast/2]). 
 -export([handle_info/2, terminate/2, code_change/3]).
  
--export([start_link/4, stop/0]).
+-export([start_link/5, stop/0]).
 
 -include("graphsom.hrl").
-  
--record(state, {report_interval, % ms interval between stat reporting
-                report_timer, 	 % TRef of interval timer
-                graphite_host, 	 % graphite server host
-                graphite_port,	 % graphite server port
-                system_stats	 % list of system stats to report
-               }).               
 
+-record(state, {report_interval,  % ms interval between stat reporting
+                report_timer, 	  % TRef of interval timer
+                graphite_host,    % graphite server host
+                graphite_port,	  % graphite server port
+                graphite_prefix,  % prefix added to all graphite keys
+                system_stats	  % list of system stats to report
+               }).               
+               
 -type state() :: #state{}.
 
--spec start_link(pos_integer(), string(), pos_integer(), system_stats_type()) -> {ok, pid()} | {error, term()}.
+-spec start_link(pos_integer(), string(), pos_integer(), system_stats_type(), string()) -> {ok, pid()} | {error, term()}.
 
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats) ->
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix) ->
     io:format("graphsom_timer start called ~n"),
     gen_server:start_link({local, ?MODULE}, ?MODULE,  
-                          [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats ], []).
+                          [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix], []).
 
 -spec init(list()) -> {ok, state()}.
 
-init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
+init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
     io:format("graphsom timer started ....~n"),
     io:format("graphsom will report stats to ~p:~p every ~p ms ~n",
               [ GraphiteHost, GraphitePort, ReportIntervalMs ]),
@@ -36,6 +37,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
       report_timer = Tref,
       graphite_host = GraphiteHost,
       graphite_port = GraphitePort,
+      graphite_prefix = Prefix,
       system_stats = SystemStats
      },
     {ok, State}.

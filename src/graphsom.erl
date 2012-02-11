@@ -11,14 +11,23 @@ collect_system_metrics(SystemMetricStr, [SystemMetric | T], Prefix) ->
 	SystemMetricStr2 = case catch SystemMetric of
 		memory ->
 			FullPrefix = prepend_prefix(Prefix, "memory."),
-			format_multiple_metrics([], folsom_vm_metrics:get_memory(), gauge, FullPrefix);
+			format_multiple_metrics(SystemMetricStr, folsom_vm_metrics:get_memory(), gauge, FullPrefix);
 		system_info ->
+			%%Too much data here figure out whats important
+			%%FullPrefix = prepend_prefix(Prefix, "system_info."),
+			%%error_logger:info_msg("~p ~n",[folsom_vm_metrics:get_system_info()]),
 			SystemMetricStr;
 		statistics ->
-			SystemMetricStr;
+			format_statistics(SystemMetricStr, Prefix);
 		process_info ->
+			%%Too much data here figure out whats important
+			%%FullPrefix = prepend_prefix(Prefix, "system_info."),
+			%%error_logger:info_msg("~p ~n",[folsom_vm_metrics:get_process_info()]),
 			SystemMetricStr;
 		port_info ->
+			%%Too much data here figure out whats important
+			%%FullPrefix = prepend_prefix(Prefix, "system_info."),
+			%%error_logger:info_msg("~p ~n",[folsom_vm_metrics:get_port_info()]),
 			SystemMetricStr;
 		_ ->
 			SystemMetricStr
@@ -27,6 +36,45 @@ collect_system_metrics(SystemMetricStr, [SystemMetric | T], Prefix) ->
 
 collect_system_metrics(SystemMetricStr, [], _Prefix) ->	
 	SystemMetricStr.
+	
+format_statistics (SystemMetricStr, Prefix) ->
+	FullPrefix = prepend_prefix(Prefix, "stats."),
+			[
+				{context_switches, ContextSwithes},
+				{garbage_collection, GarbageCollectionStats},
+				{io, IOStats},
+        		{reductions, ReductionStats},
+    			{run_queue, RunQueue},
+    			{runtime, RunTimeStats},
+    			{wall_clock, WalClockStats}
+			] = folsom_vm_metrics:get_statistics(),
+			StatsString = string:concat(SystemMetricStr, format_metric(prepend_prefix(Prefix,"context_switches."), gauge, ContextSwithes)),
+			StatsString1 = format_multiple_metrics(
+				StatsString, 
+				GarbageCollectionStats, 
+				gauge, 
+				prepend_prefix(Prefix,"gc.")),
+			StatsString2 = format_multiple_metrics(
+				StatsString1, 
+				IOStats, 
+				gauge, 
+				prepend_prefix(Prefix,"io.")),				
+			StatsString3 = format_multiple_metrics(
+				StatsString2, 
+				ReductionStats, 
+				gauge, 
+				prepend_prefix(Prefix,"reductions.")),	
+			StatsString4 = string:concat(StatsString3, format_metric(prepend_prefix(Prefix,"run_queue."), gauge, RunQueue)),
+			StatsString5 = format_multiple_metrics(
+				StatsString4, 
+				RunTimeStats, 
+				gauge, 
+				prepend_prefix(Prefix,"runtime.")),	
+			StatsString6 = format_multiple_metrics(
+				StatsString5, 
+				WalClockStats, 
+				gauge, 
+				prepend_prefix(Prefix,"wall_clock.")).
 	
 %% Expects array of metric tuples {name, value}	
 format_multiple_metrics(MetricString, [{MetricName, MetricValue} | T ], MetricType, Prefix) ->
@@ -77,7 +125,7 @@ send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
             gen_tcp:close(Sock),
             ok;
         {error, Reason} ->
-            error_logger:error_msg("Failed to connect to graphite: ~p", [Reason]),
+            error_logger:error_msg("Failed to connect to graphite: ~p~n", [Reason]),
             {error, Reason}
     end. 
 

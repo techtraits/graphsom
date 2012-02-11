@@ -15,7 +15,7 @@
 %% Default values for report interval, host and port
 
 -define(REPORT_INTERVAL_MS, 10000).
--define(GRAPHITE_HOST, "graphite-dev.electronicartspoker.com").
+-define(GRAPHITE_HOST, "localhost").
 -define(GRAPHITE_PORT, 2003).
 -define(SYSTEM_STATS, [memory, system_info, statistics, process_info, port_info]).
 

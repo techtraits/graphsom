@@ -20,7 +20,7 @@ Playing Around
 **Prerequisite:** [Install](http://graphite.wikidot.com/installation)
   and run graphite locally
   
-**(In `graphsom's` root directory)**
+__(In `graphsom` root directory)__
 
 Make [rebar](https://github.com/basho/rebar) executable
 

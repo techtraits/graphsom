@@ -12,15 +12,16 @@
                  report_timer, 		% TRef of interval timer
                  graphite_host, 	% graphite server host
                  graphite_port,		% graphite server port
+                 graphite_prefix,	%The prefix added to all  graphite keys
                  system_stats		% An array with list of system stats to report
                }).               
                
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats) ->
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix) ->
     io:format("graphsom_timer start called ~n"),
 	gen_server:start_link({local, ?MODULE}, ?MODULE,  
                               [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats ], []).
 
-init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
+init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
     io:format("graphsom timer started ....~n"),
     io:format("graphsom will report stats to ~p:~p every ~p ms ~n",
                           [ GraphiteHost, GraphitePort, ReportIntervalMs ]),
@@ -30,6 +31,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
       report_timer = Tref,
       graphite_host = GraphiteHost,
       graphite_port = GraphitePort,
+      graphite_prefix = Prefix,
       system_stats = SystemStats
      },
     {ok, State}.

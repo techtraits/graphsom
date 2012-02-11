@@ -15,8 +15,9 @@
 %% Default values for report interval, host and port
 
 -define(REPORT_INTERVAL_MS, 10000).
--define(GRAPHITE_HOST, "localhost").
+-define(GRAPHITE_HOST, "graphite-dev.electronicartspoker.com").
 -define(GRAPHITE_PORT, 2003).
+-define(GRAPHITE_PREFIX, "graphsom").
 -define(SYSTEM_STATS, [memory, system_info, statistics, process_info, port_info]).
 
 
@@ -26,11 +27,11 @@
 %% ===================================================================
 
 start_link() ->
-    start_link(?REPORT_INTERVAL_MS, ?GRAPHITE_HOST, ?GRAPHITE_PORT, ?SYSTEM_STATS).
+    start_link(?REPORT_INTERVAL_MS, ?GRAPHITE_HOST, ?GRAPHITE_PORT, ?SYSTEM_STATS, ?GRAPHITE_PREFIX).
 
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats) ->
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix) ->
     supervisor:start_link({local, ?MODULE}, ?MODULE,
-                          [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]).
+                          [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]).
 
 %% ===================================================================
 %% Supervisor callbacks

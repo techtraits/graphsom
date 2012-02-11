@@ -6,20 +6,21 @@
  
  -export([stop/0]).
 
- -export([start_link/3]).
+ -export([start_link/4]).
   
  -record(state, {report_interval, 	% ms interval between stat reporting
                  report_timer, 		% TRef of interval timer
                  graphite_host, 	% graphite server host
-                 graphite_port 		% graphite server port
+                 graphite_port,		% graphite server port
+                 system_stats		% An array with list of system stats to report
                }).               
                
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort) ->
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats) ->
     io:format("graphsom_timer start called ~n"),
 	gen_server:start_link({local, ?MODULE}, ?MODULE,  
-                              [ReportIntervalMs, GraphiteHost, GraphitePort], []).
+                              [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats ], []).
 
-init([ReportIntervalMs, GraphiteHost, GraphitePort]) ->
+init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
     io:format("graphsom timer started ....~n"),
     io:format("graphsom will report stats to ~p:~p every ~p ms ~n",
                           [ GraphiteHost, GraphitePort, ReportIntervalMs ]),
@@ -28,14 +29,15 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort]) ->
       report_interval = ReportIntervalMs,
       report_timer = Tref,
       graphite_host = GraphiteHost,
-      graphite_port = GraphitePort
+      graphite_port = GraphitePort,
+      system_stats = SystemStats
      },
     {ok, State}.
 
 handle_cast({report}, State) -> 
     Metrics = folsom_metrics:get_metrics(),
     io:format("List of metrics: ~w", [Metrics]),
-    MetricStr = graphsom:collect_metrics([], Metrics),
+    MetricStr = graphsom:collect_metrics([], Metrics, State#state.system_stats ),
     io:format("Metric string: ~p", [MetricStr]),
     graphsom:send_to_graphite(lists:flatten(MetricStr),
                      State#state.graphite_host, State#state.graphite_port),

@@ -1,9 +1,12 @@
 -module(graphsom).
 
 %% all graphsom api would go in here
--export([send_to_graphite/3, collect_metrics/2]).
+-export([send_to_graphite/3, collect_metrics/2, collect_metrics/3]).
  
-%% TODO collect non-gauge metrics
+collect_metrics(MetricStr, Metrics, SystemMetrics) ->
+	collect_metrics(MetricStr, Metrics).
+
+%%TODO Collect History and Histogram
 collect_metrics(MetricStr, [MetricName | T]) ->
     MetricStr2 = case catch folsom_metrics:get_metric_value(MetricName) of
                      {Error, Reason} ->

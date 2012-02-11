@@ -4,7 +4,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, start_link/4]).
+-export([start_link/0, start_link/5]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -17,7 +17,7 @@
 -define(REPORT_INTERVAL_MS, 10000).
 -define(GRAPHITE_HOST, "graphite-dev.electronicartspoker.com").
 -define(GRAPHITE_PORT, 2003).
--define(GRAPHITE_PREFIX, "graphsom").
+-define(GRAPHITE_PREFIX, "graphsom.").
 -define(SYSTEM_STATS, [memory, system_info, statistics, process_info, port_info]).
 
 
@@ -37,7 +37,7 @@ start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix) ->
 %% Supervisor callbacks
 %% ===================================================================
 
-init(Parms = [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
+init(Parms = [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
     %% adding folsom_sup and graphsom to graphsom_sup's supervision tree
     Folsom = {folsom,
               {folsom_sup, start_link, []},
@@ -48,7 +48,7 @@ init(Parms = [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
              },
     GraphsomTimer = {graphsom_timer,
                       {graphsom_timer, start_link, 
-                       [ReportIntervalMs,GraphiteHost, GraphitePort, SystemStats]},
+                       [ReportIntervalMs,GraphiteHost, GraphitePort, SystemStats, Prefix]},
                       permanent, 
                       5000, 
                       worker, 

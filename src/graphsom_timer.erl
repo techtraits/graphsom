@@ -6,7 +6,7 @@
  
  -export([stop/0]).
 
- -export([start_link/4]).
+ -export([start_link/5]).
   
  -record(state, {report_interval, 	% ms interval between stat reporting
                  report_timer, 		% TRef of interval timer
@@ -19,7 +19,7 @@
 start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix) ->
     io:format("graphsom_timer start called ~n"),
 	gen_server:start_link({local, ?MODULE}, ?MODULE,  
-                              [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats ], []).
+                              [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix], []).
 
 init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
     io:format("graphsom timer started ....~n"),

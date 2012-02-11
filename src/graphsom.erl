@@ -6,6 +6,28 @@
 collect_metrics(MetricStr, Metrics, SystemMetrics) ->
 	collect_metrics(MetricStr, Metrics).
 
+collect_system_metrics(SystemMetricStr, [SystemMetric | T]) ->
+	SystemMetricStr2 = case catch SystemMetric of
+		memory ->
+			error_logger:info_msg("Getting Memory Stats ~p ~n",[folsom_vm_metrics:get_memory()]),
+			SystemMetricStr;
+		system_info ->
+			SystemMetricStr;
+		statistics ->
+			SystemMetricStr;
+		process_info ->
+			SystemMetricStr;
+		port_info ->
+			SystemMetricStr;
+		_ ->
+			SystemMetricStr
+	end,	
+	collect_system_metrics(SystemMetricStr2, T);
+
+collect_system_metrics(SystemMetricStr, []) ->	
+	SystemMetricStr.
+	
+	
 %%TODO Collect History and Histogram
 collect_metrics(MetricStr, [MetricName | T]) ->
     MetricStr2 = case catch folsom_metrics:get_metric_value(MetricName) of

@@ -4,7 +4,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, start_link/3]).
+-export([start_link/0, start_link/4]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -26,17 +26,17 @@
 %% ===================================================================
 
 start_link() ->
-    start_link(?REPORT_INTERVAL_MS, ?GRAPHITE_HOST, ?GRAPHITE_PORT).
+    start_link(?REPORT_INTERVAL_MS, ?GRAPHITE_HOST, ?GRAPHITE_PORT, ?SYSTEM_STATS).
 
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort) ->
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats) ->
     supervisor:start_link({local, ?MODULE}, ?MODULE,
-                          [ReportIntervalMs, GraphiteHost, GraphitePort, ?SYSTEM_STATS ]).
+                          [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]).
 
 %% ===================================================================
 %% Supervisor callbacks
 %% ===================================================================
 
-init(Parms = [ReportIntervalMs, GraphiteHost, GraphitePort]) ->
+init(Parms = [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
     %% adding folsom_sup and graphsom to graphsom_sup's supervision tree
     Folsom = {folsom,
               {folsom_sup, start_link, []},
@@ -47,7 +47,7 @@ init(Parms = [ReportIntervalMs, GraphiteHost, GraphitePort]) ->
              },
     GraphsomTimer = {graphsom_timer,
                       {graphsom_timer, start_link, 
-                       [ReportIntervalMs,GraphiteHost, GraphitePort]},
+                       [ReportIntervalMs,GraphiteHost, GraphitePort, SystemStats]},
                       permanent, 
                       5000, 
                       worker, 

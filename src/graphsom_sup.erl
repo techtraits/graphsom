@@ -9,6 +9,10 @@
 %% Supervisor callbacks
 -export([init/1]).
 
+%% Include
+
+-include("graphsom.hrl").
+
 %% Helper macro for declaring children of supervisor
 -define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
 
@@ -25,8 +29,12 @@
 %% API functions
 %% ===================================================================
 
+-spec start_link() -> {ok, pid()}.
+
 start_link() ->
     start_link(?REPORT_INTERVAL_MS, ?GRAPHITE_HOST, ?GRAPHITE_PORT, ?SYSTEM_STATS).
+
+-spec start_link(pos_integer(), string(), integer(), system_stats_type()) -> {ok, pid()}.
 
 start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats) ->
     supervisor:start_link({local, ?MODULE}, ?MODULE,
@@ -36,7 +44,9 @@ start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats) ->
 %% Supervisor callbacks
 %% ===================================================================
 
-init(Parms = [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
+-spec init(list()) -> {ok, term()}.
+
+init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats]) ->
     %% adding folsom_sup and graphsom to graphsom_sup's supervision tree
     Folsom = {folsom,
               {folsom_sup, start_link, []},

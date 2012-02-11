@@ -9,7 +9,7 @@ website being really ghetto.
 Status
 ------
 
-* Supports [folsom's](https://github.com/boundary/folsom) `gauge`,
+* Supports [folsom](https://github.com/boundary/folsom) `gauge`,
   `counter` and `meter` metrics
 * Support for other metric types (`histogram` and `history`) and other
   visualization backends is coming very soon

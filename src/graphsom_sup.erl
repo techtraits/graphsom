@@ -18,7 +18,7 @@
 
 %% Default values for report interval, host and port
 
--define(REPORT_INTERVAL_MS, 10000).
+-define(REPORT_INTERVAL_MS, 30000).
 -define(GRAPHITE_HOST, "localhost").
 -define(GRAPHITE_PORT, 2003).
 -define(GRAPHITE_PREFIX, "graphsom.").

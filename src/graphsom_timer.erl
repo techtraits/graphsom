@@ -48,9 +48,9 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
 
 handle_cast(report, State) -> 
     Metrics = folsom_metrics:get_metrics(),
-    io:format("List of metrics: ~w", [Metrics]),
-    MetricStr = graphsom:collect_metrics([], Metrics, State#state.system_stats ),
-    io:format("Metric string: ~p", [MetricStr]),
+    io:format("List of metrics: ~w ~n", [Metrics]),
+    MetricStr = graphsom:collect_metrics([], Metrics, State#state.system_stats, State#state.graphite_prefix ),
+    io:format("Metric string: ~p ~n", [lists:flatten(MetricStr)]),
     graphsom:send_to_graphite(lists:flatten(MetricStr),
                               State#state.graphite_host, 
                               State#state.graphite_port),

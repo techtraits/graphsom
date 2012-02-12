@@ -31,17 +31,15 @@ Get all dependencies (only [folsom](https://github.com/boundary/folsom))
     mkdir deps
     ./rebar get-deps
     
-Compile
+Compile and generate a release
 
     ./rebar compile
-
-Start an erlang shell (eshell):
-
-    erl -pa ebin/ -pa deps/folsom/ebin/
+    ./rebar generate
     
-Start graphsom application:
+Running graphsom node
 
-    application:start(graphsom).
+    ./rel/graphsom/bin/graphsom console
+
 
 Graphsom will dump all `folsom metrics` every `30 seconds`
 to the local graphite backend.
@@ -61,6 +59,8 @@ Update values for the metrics:
     folsom_metrics:notify({metric_name_3, 300}).
 
 Check graphite for the values:    
+
+
 
 Authors 
 ------

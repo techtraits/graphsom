@@ -2,10 +2,32 @@
 
 %% all graphsom api would go in here
 -export([send_to_graphite/3, collect_metrics/3, collect_metrics/4]).
+
+-spec collect_metrics(string(), list(), list(), string()) -> string().
  
 collect_metrics(MetricStr, Metrics, SystemMetrics, Prefix) ->
 	MetricStr2 = collect_system_metrics(MetricStr, SystemMetrics, Prefix),
 	collect_metrics(MetricStr2, Metrics, Prefix).
+
+-spec collect_metrics(string(), list(), string()) -> string().
+
+%% TODO Collect History and Histogram
+collect_metrics(MetricStr, [MetricName | T], Prefix) ->
+    MetricStr2 = case catch folsom_metrics:get_metric_value(MetricName) of
+                     {Error, Reason} ->
+                         error_logger:info_msg("Error when getting metric from folsom_metrics: error: ~p, reason: ~p",[Error, Reason]),
+                         MetricStr;
+                     MetricValue ->                         
+                         [{MetricName,[{type,MetricType}]}] = folsom_metrics:get_metric_info(MetricName),
+                         FullMetricName = prepend_prefix(Prefix, MetricName),
+                         string:concat(MetricStr , format_metric(FullMetricName, MetricType, MetricValue))
+                 end,
+    collect_metrics(MetricStr2, T, Prefix);
+
+collect_metrics(MetricStr, [], _Prefix) ->	
+	MetricStr.
+	
+-spec collect_system_metrics(string(), list(), string()) -> string().
 
 collect_system_metrics(SystemMetricStr, [SystemMetric | T], Prefix) ->
 	SystemMetricStr2 = case catch SystemMetric of
@@ -36,8 +58,10 @@ collect_system_metrics(SystemMetricStr, [SystemMetric | T], Prefix) ->
 
 collect_system_metrics(SystemMetricStr, [], _Prefix) ->	
 	SystemMetricStr.
-	
-format_statistics (SystemMetricStr, Prefix) ->
+
+-spec format_statistics(string(), atom()) -> string(). 
+
+format_statistics(SystemMetricStr, Prefix) ->
 	FullPrefix = prepend_prefix(Prefix, "stats."),
 			[
 				{context_switches, ContextSwithes},
@@ -76,6 +100,8 @@ format_statistics (SystemMetricStr, Prefix) ->
 				gauge, 
 				prepend_prefix(Prefix,"wall_clock.")).
 	
+-spec format_multiple_metrics(string(), list(), atom(), atom()) -> string().
+
 %% Expects array of metric tuples {name, value}	
 format_multiple_metrics(MetricString, [{MetricName, MetricValue} | T ], MetricType, Prefix) ->
 	FullName = prepend_prefix(Prefix, MetricName),
@@ -85,22 +111,7 @@ format_multiple_metrics(MetricString, [{MetricName, MetricValue} | T ], MetricTy
 format_multiple_metrics(MetricString, [], _MetricType, _Prefix) ->
 	MetricString.
 
-
-%%TODO Collect History and Histogram
-collect_metrics(MetricStr, [MetricName | T], Prefix) ->
-    MetricStr2 = case catch folsom_metrics:get_metric_value(MetricName) of
-                     {Error, Reason} ->
-                         error_logger:info_msg("Error when getting metric from folsom_metrics: error: ~p, reason: ~p",[Error, Reason]),
-                         MetricStr;
-                     MetricValue ->                         
-                         [{MetricName,[{type,MetricType}]}] = folsom_metrics:get_metric_info(MetricName),
-                         FullMetricName = prepend_prefix(Prefix, MetricName),
-                         string:concat(MetricStr , format_metric(FullMetricName, MetricType, MetricValue))
-                 end,
-    collect_metrics(MetricStr2, T, Prefix);
-
-collect_metrics(MetricStr, [], _Prefix) ->	
-	MetricStr.
+-spec format_metric(atom(), atom(), number()) -> string().
 
 format_metric(MetricName, MetricType, MetricValue) ->
     CurrentTime = current_time(),
@@ -117,6 +128,7 @@ format_metric(MetricName, MetricType, MetricValue) ->
     		string:concat(StringAcc3, io_lib:format("~s.all_time_mean ~p ~w~n", [MetricName, Mean, CurrentTime]))
     	end.
 
+-spec send_to_graphite(string(), string(), pos_integer()) -> ok | {error, term()}.
    
 send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
     case gen_tcp:connect(GraphiteHost, GraphitePort, [list, {packet, 0}]) of
@@ -128,6 +140,10 @@ send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
             error_logger:error_msg("Failed to connect to graphite: ~p~n", [Reason]),
             {error, Reason}
     end. 
+
+%% private api
+
+-spec prepend_prefix(atom(), atom()) -> string().
 
 prepend_prefix(Prefix, Name) ->
 	PrefixStr = case is_atom(Prefix) of
@@ -145,7 +161,7 @@ prepend_prefix(Prefix, Name) ->
 	end,
 	string:concat(PrefixStr, NameStr).
 
-
+-spec current_time() -> pos_integer().
 
 current_time() ->    
     calendar:datetime_to_gregorian_seconds(calendar:now_to_universal_time( now()))-719528*24*3600. 

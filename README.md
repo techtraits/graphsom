@@ -15,17 +15,20 @@ Status
 * Support for other metric types (`histogram` and `history`) and other
   visualization backends is coming very soon
 
-Playing Around
+Getting Started
 --------------
 
-**Prerequisite:** [Install](http://graphite.wikidot.com/installation)
-  and run graphite locally
-  
-__(In `graphsom` root directory)__
+Prerequisites 
+* [Download](https://launchpad.net/graphite/+download) and [Install](http://graphite.wikidot.com/installation) and run graphite locally
+* [Download](https://github.com/downloads/basho/rebar/rebar) or [build](https://github.com/basho/rebar) rebar.
+* Clone the graphsome project 
+ 
+    cd graphsome
+    cp path_to_rebar_bin/rebar ./ # Copy rebar to to local dir (Or somwhere in path)
+	chmod u+x rebar  # Make [rebar](https://github.com/basho/rebar) executable  
 
-Make [rebar](https://github.com/basho/rebar) executable
 
-    chmod u+x rebar
+    
     
 Get all dependencies (only [folsom](https://github.com/boundary/folsom))
 

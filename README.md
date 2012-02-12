@@ -11,6 +11,7 @@ Status
 
 * Supports [folsom](https://github.com/boundary/folsom) `gauge`,
   `counter` and `meter` metrics
+* Supports [folsom](https://github.com/boundary/folsom) memory and statsistics Erlang VM metrics.
 * Support for other metric types (`histogram` and `history`) and other
   visualization backends is coming very soon
 

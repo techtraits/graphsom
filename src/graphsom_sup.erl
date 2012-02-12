@@ -4,7 +4,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, start_link/5]).
+-export([start_link/1, start_link/5]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -30,10 +30,15 @@
 %% API functions
 %% ===================================================================
 
--spec start_link() -> {ok, pid()}.
 
-start_link() ->
-    start_link(?REPORT_INTERVAL_MS, ?GRAPHITE_HOST, ?GRAPHITE_PORT, ?SYSTEM_STATS, ?GRAPHITE_PREFIX).
+-spec start_link(config()) -> {ok, pid()}.
+
+start_link(Config) ->
+    start_link(value(report_interval, Config), 
+               value(graphite_host, Config), 
+               value(graphite_port, Config),
+               value(graphite_prefix, Config), 
+               value(system_stats, Config)).
 
 -spec start_link(pos_integer(), string(), integer(), system_stats_type(), string()) -> {ok, pid()}.
 
@@ -65,3 +70,23 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
                       worker, 
                       [graphsom_timer]},
     {ok, { {one_for_one, 100, 10}, [Folsom, GraphsomTimer]} }.
+
+%% private functions
+
+-spec value(atom(), config()) -> term().
+
+value(report_interval, Config) ->
+    proplists:get_value(report_interval, Config, ?REPORT_INTERVAL_MS);
+
+value(graphite_host, Config) ->
+    proplists:get_value(graphite_host, Config, ?GRAPHITE_HOST);
+
+value(graphite_port, Config) ->
+    proplists:get_value(graphite_port, Config, ?GRAPHITE_PORT);
+
+value(system_stats, Config) ->
+    proplists:get_value(system_stats, Config, ?SYSTEM_STATS);
+
+value(graphite_prefix, Config) ->
+    proplists:get_value(graphite_prefix, Config, ?GRAPHITE_PREFIX).
+

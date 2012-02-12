@@ -1,5 +1,5 @@
-REBAR=`which rebar || ./rebar`
-DIALYZER=`which dialyzer || ./dialyzer`
+REBAR=`which rebar` || ./rebar
+DIALYZER=`which dialyzer` || ./dialyzer
 
 all: deps compile
 

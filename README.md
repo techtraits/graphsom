@@ -23,6 +23,7 @@ Prerequisites
 * [Download](https://launchpad.net/graphite/+download) and [Install](http://graphite.wikidot.com/installation) and run graphite locally
 * [Download](https://github.com/downloads/basho/rebar/rebar) or [build](https://github.com/basho/rebar) rebar.
 * Clone the graphsome project 
+
  
     cd graphsome
     cp path_to_rebar_bin/rebar ./ # Copy rebar to to local dir (Or somwhere in path)

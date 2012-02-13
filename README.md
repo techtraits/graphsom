@@ -24,7 +24,8 @@ Prerequisites
 * [Download](https://github.com/downloads/basho/rebar/rebar) or [build](https://github.com/basho/rebar) rebar.
 * Clone the graphsome project 
 
- 
+Building graphsom
+
     cd graphsome
     cp path_to_rebar_bin/rebar ./ # Copy rebar to to local dir (Or somwhere in path)
 	chmod u+x rebar  # Make [rebar](https://github.com/basho/rebar) executable  

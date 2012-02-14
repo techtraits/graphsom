@@ -22,7 +22,7 @@
 -define(GRAPHITE_HOST, "localhost").
 -define(GRAPHITE_PORT, 2003).
 -define(GRAPHITE_PREFIX, "graphsom.").
--define(SYSTEM_STATS, [memory, system_info, statistics, process_info, port_info]).
+-define(VM_STATS, [memory, system_info, statistics, process_info, port_info]).
 
 
 
@@ -38,23 +38,24 @@ start_link(Config) ->
                value(graphite_host, Config), 
                value(graphite_port, Config),
                value(graphite_prefix, Config), 
-               value(system_stats, Config)).
+               value(vm_metrics, Config)).
 
--spec start_link(pos_integer(), string(), integer(), string(), system_stats_type()) -> {ok, pid()}.
+-spec start_link(pos_integer(), string(), integer(), string(), vm_metrics_type()) -> {ok, pid()}.
 
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats) ->
-    io:format("graphsom_sup: systemStats: ~w ~n", [SystemStats]),
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics) ->
+    io:format("graphsom_sup: VmStats: ~w ~n", [VmMetrics]),
     supervisor:start_link({local, ?MODULE}, ?MODULE,
-                          [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats]).
+                          [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics]).
 
 %% ===================================================================
+
 %% Supervisor callbacks
 %% ===================================================================
 
 
 -spec init(list()) -> {ok, term()}.
 
-init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats]) ->
+init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics]) ->
     %% adding folsom_sup and graphsom to graphsom_sup's supervision tree
     Folsom = {folsom,
               {folsom_sup, start_link, []},
@@ -65,7 +66,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats]) ->
              },
     GraphsomTimer = {graphsom_timer,
                       {graphsom_timer, start_link, 
-                       [ReportIntervalMs,GraphiteHost, GraphitePort, Prefix, SystemStats]},
+                       [ReportIntervalMs,GraphiteHost, GraphitePort, Prefix, VmMetrics]},
                       permanent, 
                       5000, 
                       worker, 
@@ -85,11 +86,8 @@ value(graphite_host, Config) ->
 value(graphite_port, Config) ->
     proplists:get_value(graphite_port, Config, ?GRAPHITE_PORT);
 
-value(system_stats, Config) ->
-    proplists:get_value(system_stats, Config, ?SYSTEM_STATS);
+value(vm_metrics, Config) ->
+    proplists:get_value(vm_metrics, Config, ?VM_STATS);
 
 value(graphite_prefix, Config) ->
-    proplists:get_value(graphite_prefix, Config, ?GRAPHITE_PREFIX);
-
-value(test_value, Config) ->
-    proplists:get_value(test_value, Config).
+    proplists:get_value(graphite_prefix, Config, ?GRAPHITE_PREFIX).

@@ -3,7 +3,7 @@
                     | {failover, Node :: node()}.
 
 
--type system_stats_type() :: list().
+-type vm_metrics_type() :: list().
 
 -type property() :: atom() | tuple().
 -type config() :: [property()].

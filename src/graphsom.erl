@@ -1,25 +1,29 @@
 -module(graphsom).
 
 %% all graphsom api would go in here
--export([send_to_graphite/3, report_metrics/4]).
+-export([report_metrics/4]).
+
+%% Includes
+
+-include("graphsom.hrl").
 
 %% API
 
--spec report_metrics(string(), pos_integer(), string(), list()) -> ok | {error, term()}.
+-spec report_metrics(string(), pos_integer(), string(), vm_metrics_type()) -> ok | {error, term()}.
 
-report_metrics(GraphiteHost, GraphitePort, GraphitePrefix, SystemStats) ->
+report_metrics(GraphiteHost, GraphitePort, GraphitePrefix, VmMetrics) ->
     Metrics = folsom_metrics:get_metrics(),
     io:format("List of metrics: ~w ~n", [Metrics]),
-    io:format("List of system metrics ~w, ~n", [SystemStats]),
-    MetricStr = collect_metrics([], Metrics, SystemStats, GraphitePrefix ),
+    io:format("List of vm metrics ~w, ~n", [VmMetrics]),
+    MetricStr = collect_metrics([], Metrics, VmMetrics, GraphitePrefix ),
     io:format("Metric string: ~p ~n", [lists:flatten(MetricStr)]),
-    graphsom:send_to_graphite(lists:flatten(MetricStr), GraphiteHost, GraphitePort).
+    send_to_graphite(lists:flatten(MetricStr), GraphiteHost, GraphitePort).
 
--spec collect_metrics(string(), list(), list(), string()) -> string().
+-spec collect_metrics(string(), list(), vm_metrics_type(), string()) -> string().
  
-collect_metrics(MetricStr, Metrics, SystemMetrics, Prefix) ->
-    MetricStr2 = collect_system_metrics(MetricStr, SystemMetrics, Prefix),
-    io:format("MetricStr2 (System Metrics): ~p, ~n", [MetricStr2]),
+collect_metrics(MetricStr, Metrics, VmMetrics, Prefix) ->
+    MetricStr2 = collect_system_metrics(MetricStr, VmMetrics, Prefix),
+    io:format("MetricStr2 (VM Metrics): ~p, ~n", [MetricStr2]),
     collect_metrics(MetricStr2, Metrics, Prefix).
 
 -spec collect_metrics(string(), list(), string()) -> string().
@@ -46,40 +50,40 @@ collect_metrics(MetricStr, [], _Prefix) ->
 	
 -spec collect_system_metrics(string(), list(), string()) -> string().
 
-collect_system_metrics(SystemMetricStr, [SystemMetric | T], Prefix) ->
-	SystemMetricStr2 = case catch SystemMetric of
+collect_system_metrics(VmMetricStr, [VmMetric | T], Prefix) ->
+	VmMetricStr2 = case catch VmMetric of
 		memory ->
 			FullPrefix = prepend_prefix(Prefix, "memory."),
-			format_multiple_metrics(SystemMetricStr, folsom_vm_metrics:get_memory(), gauge, FullPrefix);
+			format_multiple_metrics(VmMetricStr, folsom_vm_metrics:get_memory(), gauge, FullPrefix);
 		system_info ->
 			%%Too much data here figure out whats important
 			%%FullPrefix = prepend_prefix(Prefix, "system_info."),
 			%%error_logger:info_msg("~p ~n",[folsom_vm_metrics:get_system_info()]),
-			SystemMetricStr;
+			VmMetricStr;
 		statistics ->
-			format_statistics(SystemMetricStr, Prefix);
+			format_statistics(VmMetricStr, Prefix);
 		process_info ->
 			%%Too much data here figure out whats important
 			%%FullPrefix = prepend_prefix(Prefix, "system_info."),
 			%%error_logger:info_msg("~p ~n",[folsom_vm_metrics:get_process_info()]),
-			SystemMetricStr;
+			VmMetricStr;
 		port_info ->
 			%%Too much data here figure out whats important
 			%%FullPrefix = prepend_prefix(Prefix, "system_info."),
 			%%error_logger:info_msg("~p ~n",[folsom_vm_metrics:get_port_info()]),
-			SystemMetricStr;
+			VmMetricStr;
 		_ ->
-			SystemMetricStr
+			VmMetricStr
 	end,	
-	collect_system_metrics(SystemMetricStr2, T, Prefix);
+	collect_system_metrics(VmMetricStr2, T, Prefix);
 
-collect_system_metrics(SystemMetricStr, [], _Prefix) ->	
-	SystemMetricStr.
+collect_system_metrics(VmMetricStr, [], _Prefix) ->	
+	VmMetricStr.
 
 -spec format_statistics(string(), atom()) -> string(). 
 
-format_statistics(SystemMetricStr, Prefix) ->
-	FullPrefix = prepend_prefix(Prefix, "stats."),
+format_statistics(VmMetricStr, Prefix) ->
+%%	FullPrefix = prepend_prefix(Prefix, "stats."),
 			[
 				{context_switches, ContextSwithes},
 				{garbage_collection, GarbageCollectionStats},
@@ -89,7 +93,7 @@ format_statistics(SystemMetricStr, Prefix) ->
     			{runtime, RunTimeStats},
     			{wall_clock, WalClockStats}
 			] = folsom_vm_metrics:get_statistics(),
-			StatsString = string:concat(SystemMetricStr, format_metric(prepend_prefix(Prefix,"context_switches."), gauge, ContextSwithes)),
+			StatsString = string:concat(VmMetricStr, format_metric(prepend_prefix(Prefix,"context_switches."), gauge, ContextSwithes)),
 			StatsString1 = format_multiple_metrics(
 				StatsString, 
 				GarbageCollectionStats, 
@@ -111,7 +115,7 @@ format_statistics(SystemMetricStr, Prefix) ->
 				RunTimeStats, 
 				gauge, 
 				prepend_prefix(Prefix,"runtime.")),	
-			StatsString6 = format_multiple_metrics(
+			format_multiple_metrics(
 				StatsString5, 
 				WalClockStats, 
 				gauge, 
@@ -160,7 +164,7 @@ send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
 
 %% private api
 
--spec prepend_prefix(atom(), atom()) -> string().
+-spec prepend_prefix(term(), term()) -> string().
 
 prepend_prefix(Prefix, Name) ->
 

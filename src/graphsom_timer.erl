@@ -13,21 +13,21 @@
                 graphite_host,    % graphite server host
                 graphite_port,	  % graphite server port
                 graphite_prefix,  % prefix added to all graphite keys
-                system_stats	  % list of system stats to report
+                vm_metrics	  % list of vm metrics to report
                }).               
                
 -type state() :: #state{}.
 
--spec start_link(pos_integer(), string(), pos_integer(), string(), system_stats_type()) -> {ok, pid()} | {error, term()}.
+-spec start_link(pos_integer(), string(), pos_integer(), string(), vm_metrics_type()) -> {ok, pid()} | {error, term()}.
 
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats) ->
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics) ->
     io:format("graphsom_timer started ~n"),
     gen_server:start_link({local, ?MODULE}, ?MODULE,  
-                          [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats], []).
+                          [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics], []).
 
 -spec init(list()) -> {ok, state()}.
 
-init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats]) ->
+init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics]) ->
     io:format("graphsom will report stats to ~p:~p every ~p ms ~n",
               [ GraphiteHost, GraphitePort, ReportIntervalMs ]),
     {ok, Tref} = timer:apply_interval(ReportIntervalMs, gen_server, cast,  [?MODULE, report]),                     
@@ -37,9 +37,9 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats]) ->
       graphite_host = GraphiteHost,
       graphite_port = GraphitePort,
       graphite_prefix = Prefix,
-      system_stats = SystemStats
+      vm_metrics = VmMetrics
      },
-    io:format("graphsom_timer System Stats: ~w ~n", [SystemStats]),
+    io:format("graphsom_timer Vm Metrics: ~w ~n", [VmMetrics]),
     {ok, State}.
 
 -type cast_msg_type() :: report | stop | term().
@@ -48,7 +48,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats]) ->
 
 handle_cast(report, State) -> 
     graphsom:report_metrics(State#state.graphite_host, State#state.graphite_port, 
-                            State#state.graphite_prefix, State#state.system_stats),
+                            State#state.graphite_prefix, State#state.vm_metrics),
     {noreply, State};
 	
 handle_cast(stop, State) ->

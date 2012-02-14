@@ -40,11 +40,12 @@ start_link(Config) ->
                value(graphite_prefix, Config), 
                value(system_stats, Config)).
 
--spec start_link(pos_integer(), string(), integer(), system_stats_type(), string()) -> {ok, pid()}.
+-spec start_link(pos_integer(), string(), integer(), string(), system_stats_type()) -> {ok, pid()}.
 
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix) ->
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats) ->
+    io:format("graphsom_sup: systemStats: ~w ~n", [SystemStats]),
     supervisor:start_link({local, ?MODULE}, ?MODULE,
-                          [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]).
+                          [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats]).
 
 %% ===================================================================
 %% Supervisor callbacks
@@ -53,7 +54,7 @@ start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix) ->
 
 -spec init(list()) -> {ok, term()}.
 
-init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
+init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats]) ->
     %% adding folsom_sup and graphsom to graphsom_sup's supervision tree
     Folsom = {folsom,
               {folsom_sup, start_link, []},
@@ -64,7 +65,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
              },
     GraphsomTimer = {graphsom_timer,
                       {graphsom_timer, start_link, 
-                       [ReportIntervalMs,GraphiteHost, GraphitePort, SystemStats, Prefix]},
+                       [ReportIntervalMs,GraphiteHost, GraphitePort, Prefix, SystemStats]},
                       permanent, 
                       5000, 
                       worker, 
@@ -88,5 +89,7 @@ value(system_stats, Config) ->
     proplists:get_value(system_stats, Config, ?SYSTEM_STATS);
 
 value(graphite_prefix, Config) ->
-    proplists:get_value(graphite_prefix, Config, ?GRAPHITE_PREFIX).
+    proplists:get_value(graphite_prefix, Config, ?GRAPHITE_PREFIX);
 
+value(test_value, Config) ->
+    proplists:get_value(test_value, Config).

@@ -18,20 +18,19 @@
                
 -type state() :: #state{}.
 
--spec start_link(pos_integer(), string(), pos_integer(), system_stats_type(), string()) -> {ok, pid()} | {error, term()}.
+-spec start_link(pos_integer(), string(), pos_integer(), string(), system_stats_type()) -> {ok, pid()} | {error, term()}.
 
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix) ->
-    io:format("graphsom_timer start called ~n"),
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats) ->
+    io:format("graphsom_timer started ~n"),
     gen_server:start_link({local, ?MODULE}, ?MODULE,  
-                          [ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix], []).
+                          [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats], []).
 
 -spec init(list()) -> {ok, state()}.
 
-init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
-    io:format("graphsom timer started ....~n"),
+init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, SystemStats]) ->
     io:format("graphsom will report stats to ~p:~p every ~p ms ~n",
               [ GraphiteHost, GraphitePort, ReportIntervalMs ]),
-    {ok, Tref} = timer:apply_interval(ReportIntervalMs, gen_server, cast,  [?MODULE, report]),                          
+    {ok, Tref} = timer:apply_interval(ReportIntervalMs, gen_server, cast,  [?MODULE, report]),                     
     State = #state{ 
       report_interval = ReportIntervalMs,
       report_timer = Tref,
@@ -40,6 +39,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
       graphite_prefix = Prefix,
       system_stats = SystemStats
      },
+    io:format("graphsom_timer System Stats: ~w ~n", [SystemStats]),
     {ok, State}.
 
 -type cast_msg_type() :: report | stop | term().
@@ -47,13 +47,8 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, SystemStats, Prefix]) ->
 -spec handle_cast(cast_msg_type(), state()) -> {noreply, state()} | {stop, normal, state()}.
 
 handle_cast(report, State) -> 
-    Metrics = folsom_metrics:get_metrics(),
-    io:format("List of metrics: ~w ~n", [Metrics]),
-    MetricStr = graphsom:collect_metrics([], Metrics, State#state.system_stats, State#state.graphite_prefix ),
-    io:format("Metric string: ~p ~n", [lists:flatten(MetricStr)]),
-    graphsom:send_to_graphite(lists:flatten(MetricStr),
-                              State#state.graphite_host, 
-                              State#state.graphite_port),
+    graphsom:report_metrics(State#state.graphite_host, State#state.graphite_port, 
+                            State#state.graphite_prefix, State#state.system_stats),
     {noreply, State};
 	
 handle_cast(stop, State) ->

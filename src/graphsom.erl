@@ -1,13 +1,26 @@
 -module(graphsom).
 
 %% all graphsom api would go in here
--export([send_to_graphite/3, collect_metrics/3, collect_metrics/4]).
+-export([send_to_graphite/3, report_metrics/4]).
+
+%% API
+
+-spec report_metrics(string(), pos_integer(), string(), list()) -> ok | {error, term()}.
+
+report_metrics(GraphiteHost, GraphitePort, GraphitePrefix, SystemStats) ->
+    Metrics = folsom_metrics:get_metrics(),
+    io:format("List of metrics: ~w ~n", [Metrics]),
+    io:format("List of system metrics ~w, ~n", [SystemStats]),
+    MetricStr = collect_metrics([], Metrics, SystemStats, GraphitePrefix ),
+    io:format("Metric string: ~p ~n", [lists:flatten(MetricStr)]),
+    graphsom:send_to_graphite(lists:flatten(MetricStr), GraphiteHost, GraphitePort).
 
 -spec collect_metrics(string(), list(), list(), string()) -> string().
  
 collect_metrics(MetricStr, Metrics, SystemMetrics, Prefix) ->
-	MetricStr2 = collect_system_metrics(MetricStr, SystemMetrics, Prefix),
-	collect_metrics(MetricStr2, Metrics, Prefix).
+    MetricStr2 = collect_system_metrics(MetricStr, SystemMetrics, Prefix),
+    io:format("MetricStr2 (System Metrics): ~p, ~n", [MetricStr2]),
+    collect_metrics(MetricStr2, Metrics, Prefix).
 
 -spec collect_metrics(string(), list(), string()) -> string().
 
@@ -20,7 +33,11 @@ collect_metrics(MetricStr, [MetricName | T], Prefix) ->
                      MetricValue ->                         
                          [{MetricName,[{type,MetricType}]}] = folsom_metrics:get_metric_info(MetricName),
                          FullMetricName = prepend_prefix(Prefix, MetricName),
-                         string:concat(MetricStr , format_metric(FullMetricName, MetricType, MetricValue))
+                         io:format("Full Metric Name: ~p, ~n", [FullMetricName]),
+                         io:format("MetricStr: ~p ~n", [MetricStr]),
+                         FormattedString = format_metric(FullMetricName, MetricType, MetricValue),
+                         io:format("Formatted String: ~p, ~n", [FormattedString]),
+                         string:concat(MetricStr , FormattedString)
                  end,
     collect_metrics(MetricStr2, T, Prefix);
 
@@ -146,6 +163,7 @@ send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
 -spec prepend_prefix(atom(), atom()) -> string().
 
 prepend_prefix(Prefix, Name) ->
+
 	PrefixStr = case is_atom(Prefix) of
     	true ->
         	atom_to_list(Prefix);

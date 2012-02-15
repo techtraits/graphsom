@@ -21,15 +21,15 @@
 -spec start_link(pos_integer(), string(), pos_integer(), string(), vm_metrics_type()) -> {ok, pid()} | {error, term()}.
 
 start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics) ->
-    io:format("graphsom_timer started ~n"),
+    %% io:format("graphsom_timer started ~n"),
     gen_server:start_link({local, ?MODULE}, ?MODULE,  
                           [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics], []).
 
 -spec init(list()) -> {ok, state()}.
 
 init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics]) ->
-    io:format("graphsom will report stats to ~p:~p every ~p ms ~n",
-              [ GraphiteHost, GraphitePort, ReportIntervalMs ]),
+    %% io:format("graphsom will report stats to ~p:~p every ~p ms ~n",
+    %%          [ GraphiteHost, GraphitePort, ReportIntervalMs ]),
     {ok, Tref} = timer:apply_interval(ReportIntervalMs, gen_server, cast,  [?MODULE, report]),                     
     State = #state{ 
       report_interval = ReportIntervalMs,
@@ -39,7 +39,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics]) ->
       graphite_prefix = Prefix,
       vm_metrics = VmMetrics
      },
-    io:format("graphsom_timer Vm Metrics: ~w ~n", [VmMetrics]),
+    %% io:format("graphsom_timer Vm Metrics: ~w ~n", [VmMetrics]),
     {ok, State}.
 
 -type cast_msg_type() :: report | stop | term().

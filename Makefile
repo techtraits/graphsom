@@ -1,4 +1,4 @@
-REBAR=`which rebar || ./rebar`
+REBAR=./rebar
 DIALYZER=`which dialyzer || ./dialyzer`
 
 all: deps compile

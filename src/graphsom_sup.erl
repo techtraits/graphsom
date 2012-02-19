@@ -4,7 +4,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/1, start_link/5]).
+-export([start_link/1, start_link/6]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -23,7 +23,7 @@
 -define(GRAPHITE_PORT, 2003).
 -define(GRAPHITE_PREFIX, "graphsom.").
 -define(VM_STATS, [memory, system_info, statistics, process_info, port_info]).
-
+-define(REPORT_ALL_USER_METRICS, false).
 
 
 %% ===================================================================
@@ -38,14 +38,15 @@ start_link(Config) ->
                value(graphite_host, Config), 
                value(graphite_port, Config),
                value(graphite_prefix, Config), 
-               value(vm_metrics, Config)).
+               value(vm_metrics, Config),
+               value(report_all_user_metrics, Config)).
 
--spec start_link(pos_integer(), string(), integer(), string(), vm_metrics_type()) -> {ok, pid()}.
+-spec start_link(pos_integer(), string(), integer(), string(), vm_metrics_type(), boolean()) -> {ok, pid()}.
 
-start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics) ->
+start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics) ->
     %% io:format("graphsom_sup: VmStats: ~w ~n", [VmMetrics]),
     supervisor:start_link({local, ?MODULE}, ?MODULE,
-                          [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics]).
+                          [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics]).
 
 %% ===================================================================
 
@@ -55,7 +56,7 @@ start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics) ->
 
 -spec init(list()) -> {ok, term()}.
 
-init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics]) ->
+init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics]) ->
     %% adding folsom_sup and graphsom to graphsom_sup's supervision tree
     Folsom = {folsom,
               {folsom_sup, start_link, []},
@@ -66,7 +67,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics]) ->
              },
     GraphsomTimer = {graphsom_timer,
                       {graphsom_timer, start_link, 
-                       [ReportIntervalMs,GraphiteHost, GraphitePort, Prefix, VmMetrics]},
+                       [ReportIntervalMs,GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics]},
                       permanent, 
                       5000, 
                       worker, 
@@ -90,4 +91,8 @@ value(vm_metrics, Config) ->
     proplists:get_value(vm_metrics, Config, ?VM_STATS);
 
 value(graphite_prefix, Config) ->
-    proplists:get_value(graphite_prefix, Config, ?GRAPHITE_PREFIX).
+    proplists:get_value(graphite_prefix, Config, ?GRAPHITE_PREFIX);
+
+value(report_all_user_metrics, Config) ->
+    proplists:get_value(report_all_user_metrics, Config, ?REPORT_ALL_USER_METRICS).
+

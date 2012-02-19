@@ -1,7 +1,7 @@
 -module(graphsom).
 
 %% all graphsom api would go in here
--export([report_metrics/4]).
+-export([report_metrics/5]).
 
 %% Includes
 
@@ -9,10 +9,16 @@
 
 %% API
 
--spec report_metrics(string(), pos_integer(), string(), vm_metrics_type()) -> ok | {error, term()}.
+-spec report_metrics(string(), pos_integer(), string(), vm_metrics_type(), boolean()) -> ok | {error, term()}.
 
-report_metrics(GraphiteHost, GraphitePort, GraphitePrefix, VmMetrics) ->
-    Metrics = folsom_metrics:get_metrics(),
+report_metrics(GraphiteHost, GraphitePort, GraphitePrefix, VmMetrics, ReportAllMetrics) ->
+    %% check whether to report all user created metrics or not
+    Metrics = case ReportAllMetrics of
+                  true ->
+                      folsom_metrics:get_metrics();
+                  _ ->
+                      []
+              end,
     %% io:format("List of metrics: ~w ~n", [Metrics]),
     %% io:format("List of vm metrics ~w, ~n", [VmMetrics]),
     MetricStr = collect_metrics([], Metrics, VmMetrics, GraphitePrefix ),

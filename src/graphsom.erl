@@ -28,8 +28,8 @@ report_metrics(GraphiteHost, GraphitePort, GraphitePrefix, VmMetrics, ReportAllM
 -spec collect_metrics(string(), list(), vm_metrics_type(), string()) -> string().
  
 collect_metrics(MetricStr, Metrics, VmMetrics, Prefix) ->
-    MetricStr2 = collect_system_metrics(MetricStr, VmMetrics, Prefix),
-    %% io:format("MetricStr2 (VM Metrics): ~p, ~n", [MetricStr2]),
+    MetricStr2 = collect_vm_metrics(MetricStr, VmMetrics, Prefix),
+    io:format("MetricStr2 (VM Metrics): ~p, ~n", [MetricStr2]),
     collect_metrics(MetricStr2, Metrics, Prefix).
 
 -spec collect_metrics(string(), list(), string()) -> string().
@@ -54,9 +54,9 @@ collect_metrics(MetricStr, [MetricName | T], Prefix) ->
 collect_metrics(MetricStr, [], _Prefix) ->	
 	MetricStr.
 	
--spec collect_system_metrics(string(), list(), string()) -> string().
+-spec collect_vm_metrics(string(), list(), string()) -> string().
 
-collect_system_metrics(VmMetricStr, [VmMetric | T], Prefix) ->
+collect_vm_metrics(VmMetricStr, [VmMetric | T], Prefix) ->
 	VmMetricStr2 = case catch VmMetric of
 		memory ->
 			FullPrefix = prepend_prefix(Prefix, "memory."),
@@ -81,9 +81,9 @@ collect_system_metrics(VmMetricStr, [VmMetric | T], Prefix) ->
 		_ ->
 			VmMetricStr
 	end,	
-	collect_system_metrics(VmMetricStr2, T, Prefix);
+	collect_vm_metrics(VmMetricStr2, T, Prefix);
 
-collect_system_metrics(VmMetricStr, [], _Prefix) ->	
+collect_vm_metrics(VmMetricStr, [], _Prefix) ->	
 	VmMetricStr.
 
 -spec format_statistics(string(), atom()) -> string(). 

@@ -43,7 +43,7 @@ start_link(Config) ->
 -spec start_link(pos_integer(), string(), integer(), string(), vm_metrics_type()) -> {ok, pid()}.
 
 start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics) ->
-    io:format("graphsom_sup: VmStats: ~w ~n", [VmMetrics]),
+    %% io:format("graphsom_sup: VmStats: ~w ~n", [VmMetrics]),
     supervisor:start_link({local, ?MODULE}, ?MODULE,
                           [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics]).
 

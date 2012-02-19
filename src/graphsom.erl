@@ -16,7 +16,7 @@ report_metrics(GraphiteHost, GraphitePort, GraphitePrefix, VmMetrics) ->
     io:format("List of user defined metrics: ~w ~n", [Metrics]),
     io:format("List of vm metrics ~w, ~n", [VmMetrics]),
     MetricStr = collect_metrics([], Metrics, VmMetrics, GraphitePrefix ),
-    io:format("Metric string: ~p ~n", [lists:flatten(MetricStr)]),
+    %% io:format("Metric string: ~p ~n", [lists:flatten(MetricStr)]),
     send_to_graphite(lists:flatten(MetricStr), GraphiteHost, GraphitePort).
 
 -spec collect_metrics(string(), list(), vm_metrics_type(), string()) -> string().
@@ -37,10 +37,10 @@ collect_metrics(MetricStr, [MetricName | T], Prefix) ->
                      MetricValue ->                         
                          [{MetricName,[{type,MetricType}]}] = folsom_metrics:get_metric_info(MetricName),
                          FullMetricName = prepend_prefix(Prefix, MetricName),
-                         io:format("Full Metric Name: ~p, ~n", [FullMetricName]),
-                         io:format("MetricStr: ~p ~n", [MetricStr]),
+                         %% io:format("Full Metric Name: ~p, ~n", [FullMetricName]),
+                         %% io:format("MetricStr: ~p ~n", [MetricStr]),
                          FormattedString = format_metric(FullMetricName, MetricType, MetricValue),
-                         io:format("Formatted String: ~p, ~n", [FormattedString]),
+                         %% io:format("Formatted String: ~p, ~n", [FormattedString]),
                          string:concat(MetricStr , FormattedString)
                  end,
     collect_metrics(MetricStr2, T, Prefix);
@@ -156,9 +156,10 @@ send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
         {ok, Sock} ->
             gen_tcp:send(Sock, MetricStr),
             gen_tcp:close(Sock),
+            io:format("Metrics updated to graphite at ~p ~n", [GraphiteHost]),
             ok;
         {error, Reason} ->
-            error_logger:error_msg("Failed to connect to graphite: ~p~n", [Reason]),
+            io:format("Failed to connect to graphite host ~p for reason ~p ~n", [GraphiteHost, Reason]),
             {error, Reason}
     end. 
 

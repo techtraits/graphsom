@@ -2,46 +2,34 @@
 
 -include("graphsom.hrl").
  
--export([stringify_vm_metrics/3, stringify_metrics/3]).
+-export([stringify_metrics/4]).
 
 
--spec stringify_vm_metrics(list(), string(), pos_integer()) -> string().
+-spec stringify_metrics(list(), list(),  string(), pos_integer()) -> string().
 
-stringify_vm_metrics(VmMetrics, Prefix, CurTime) ->
-    lists:flatten([stringify_vm_metric(VmMetric, Prefix, CurTime) || VmMetric <- VmMetrics]).
+stringify_metrics(Metrics, VmMetrics, Prefix, CurTime) ->
+    lists:flatten([stringify_vm_metric(VmMetric, Prefix, CurTime) || VmMetric <- VmMetrics],
+                  [stringify_metric(Metric, Prefix, CurTime) || Metric <- Metrics]).
 
 -spec stringify_vm_metric(folsom_vm_metric_type(), string(), pos_integer()) -> string().
 
-stringify_vm_metric(memory, Prefix, CurTime) ->
-    MetricValue = folsom_vm_metrics:get_memory(),
-    graphsom_graphite:stringify_proplist_metric(memory, MetricValue, Prefix, CurTime, "");
-
-stringify_vm_metric(system_info, Prefix, CurTime) ->
-    MetricValue = folsom_vm_metrics:get_system_info(),
-    graphsom_graphite:stringify_proplist_metric(system_info, MetricValue, Prefix, CurTime, "");
-
-stringify_vm_metric(process_info, Prefix, CurTime) ->
-    MetricValue = folsom_vm_metrics:get_process_info(),
-    graphsom_graphite:stringify_proplist_metric(process_info, MetricValue, Prefix, CurTime, "");
-
-stringify_vm_metric(statistics, Prefix, CurTime) ->
-    MetricValue = folsom_vm_metrics:get_statistics(),
-    graphsom_graphite:stringify_proplist_metric(statistics, MetricValue, Prefix, CurTime, "");
-
-stringify_vm_metric(port_info, Prefix, CurTime) ->
-    MetricValue = folsom_vm_metrics:get_memory(),
-    graphsom_graphite:stringify_proplist_metric(port_info, MetricValue, Prefix, CurTime, "").
-
--spec stringify_metrics(list(), string(), pos_integer()) -> string().
-
-stringify_metrics(Metrics, Prefix, CurTime) ->
-    lists:flatten([stringify_metric(Metric, Prefix, CurTime) || Metric <- Metrics]).
+stringify_vm_metric(VmMetric, Prefix, CurTime) ->
+    MetricValue = get_vm_metric_value(VmMetric),
+    graphsom_graphite:stringify_proplist_metric(VmMetric, MetricValue, Prefix, CurTime, "").
 
 -spec stringify_metric(string(), string(), pos_integer()) -> string().
 
 stringify_metric(MetricName, Prefix, CurTime) ->
     MetricValue = get_metric_value(MetricName),
     graphsom_graphite:stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, "").
+
+-spec get_vm_metric_value(folsom_vm_metric_type()) -> folsom_metric_value_type().
+
+get_vm_metric_value(memory) -> folsom_vm_metrics:get_memory();
+get_vm_metric_value(system_info) -> folsom_vm_metrics:get_system_info();
+get_vm_metric_value(process_info) -> folsom_vm_metrics:get_process_info();
+get_vm_metric_value(statistics) -> folsom_vm_metrics:get_statistics();
+get_vm_metric_value(port_info) -> folsom_vm_metrics:get_port_info().
 
 -spec get_metric_value(folsom_metric_name_type()) -> folsom_metric_value_type().
 

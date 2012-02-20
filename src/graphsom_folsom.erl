@@ -2,26 +2,13 @@
 
 -include("graphsom.hrl").
  
--export([stringify_metrics/4]).
+-export([get_metrics/2]).
 
+-spec get_metrics(list(), list()) -> proplist().
 
--spec stringify_metrics(list(), list(),  string(), pos_integer()) -> string().
-
-stringify_metrics(Metrics, VmMetrics, Prefix, CurTime) ->
-    lists:flatten([stringify_vm_metric(VmMetric, Prefix, CurTime) || VmMetric <- VmMetrics],
-                  [stringify_metric(Metric, Prefix, CurTime) || Metric <- Metrics]).
-
--spec stringify_vm_metric(folsom_vm_metric_type(), string(), pos_integer()) -> string().
-
-stringify_vm_metric(VmMetric, Prefix, CurTime) ->
-    MetricValue = get_vm_metric_value(VmMetric),
-    graphsom_graphite:stringify_proplist_metric(VmMetric, MetricValue, Prefix, CurTime, "").
-
--spec stringify_metric(string(), string(), pos_integer()) -> string().
-
-stringify_metric(MetricName, Prefix, CurTime) ->
-    MetricValue = get_metric_value(MetricName),
-    graphsom_graphite:stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, "").
+get_metrics(Metrics, VmMetrics) ->
+    [{Metric, get_metric_value(Metric)} || Metric <- Metrics] ++
+    [{VmMetric, get_vm_metric_value(VmMetric)} || VmMetric <- VmMetrics].
 
 -spec get_vm_metric_value(folsom_vm_metric_type()) -> folsom_metric_value_type().
 

@@ -26,7 +26,7 @@ report_metrics(GraphiteHost, GraphitePort, GraphitePrefix, VmMetrics, ReportAllM
     UserMetricStr = stringify_folsom_metrics(Metrics, GraphitePrefix, CurrentTime),
     MetricStr = lists:flatten([VmMetricStr, UserMetricStr]),
     io:format("Metric string: ~s ~n", [MetricStr]),
-    send_to_graphite(MetricStr, GraphiteHost, GraphitePort).
+    graphsom_graphite:report(MetricStr, GraphiteHost, GraphitePort).
 
 %% private api
 
@@ -39,23 +39,23 @@ stringify_folsom_vm_metrics(VmMetrics, Prefix, CurTime) ->
 
 stringify_folsom_vm_metric(memory, Prefix, CurTime) ->
     MetricValue = folsom_vm_metrics:get_memory(),
-    stringify_proplist_metric(memory, MetricValue, Prefix, CurTime, "");
+    graphsom_graphite:stringify_proplist_metric(memory, MetricValue, Prefix, CurTime, "");
 
 stringify_folsom_vm_metric(system_info, Prefix, CurTime) ->
     MetricValue = folsom_vm_metrics:get_system_info(),
-    stringify_proplist_metric(system_info, MetricValue, Prefix, CurTime, "");
+    graphsom_graphite:stringify_proplist_metric(system_info, MetricValue, Prefix, CurTime, "");
 
 stringify_folsom_vm_metric(process_info, Prefix, CurTime) ->
     MetricValue = folsom_vm_metrics:get_process_info(),
-    stringify_proplist_metric(process_info, MetricValue, Prefix, CurTime, "");
+    graphsom_graphite:stringify_proplist_metric(process_info, MetricValue, Prefix, CurTime, "");
 
 stringify_folsom_vm_metric(statistics, Prefix, CurTime) ->
     MetricValue = folsom_vm_metrics:get_statistics(),
-    stringify_proplist_metric(statistics, MetricValue, Prefix, CurTime, "");
+    graphsom_graphite:stringify_proplist_metric(statistics, MetricValue, Prefix, CurTime, "");
 
 stringify_folsom_vm_metric(port_info, Prefix, CurTime) ->
     MetricValue = folsom_vm_metrics:get_memory(),
-    stringify_proplist_metric(port_info, MetricValue, Prefix, CurTime, "").
+    graphsom_graphite:stringify_proplist_metric(port_info, MetricValue, Prefix, CurTime, "").
 
 -spec stringify_folsom_metrics(list(), string(), pos_integer()) -> string().
 
@@ -66,7 +66,7 @@ stringify_folsom_metrics(Metrics, Prefix, CurTime) ->
 
 stringify_folsom_metric(MetricName, Prefix, CurTime) ->
     MetricValue = get_folsom_metric_value(MetricName),
-    stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, "").
+    graphsom_graphite:stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, "").
 
 -spec get_folsom_metric_value(folsom_metric_name_type()) -> folsom_metric_value_type().
 
@@ -91,38 +91,6 @@ get_folsom_metric_value(MetricName, histogram) ->
 
 get_folsom_metric_value(MetricName, _Type) ->
     folsom_metrics:get_metric_value(MetricName).
-
-%% The core function that converts various types of metrics to string
-
--spec stringify_proplist_metric(folsom_metric_name_type(), folsom_metric_value_type(), string(), pos_integer(), string()) -> string().
-
-stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, Str) when is_number(MetricValue) ->
-    io_lib:format("~s~s.~s ~B ~w~n", [Str, Prefix, MetricName, MetricValue, CurTime]);
-
-stringify_proplist_metric(MetricName, {SubName, MetricValue}, Prefix, CurTime, Str) ->
-    NewPrefix = io_lib:format("~s.~s", [Prefix, MetricName]),
-    stringify_proplist_metric(SubName, MetricValue, NewPrefix, CurTime, Str);
-
-stringify_proplist_metric(MetricName, [MetricValue | T], Prefix, CurTime, Str) ->
-    Str1 = stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, Str),
-    stringify_proplist_metric(MetricName, T, Prefix, CurTime, Str1);
-
-stringify_proplist_metric(_MetricName, _MetricValue, _Prefix, _CurTime, Str) ->
-    Str.
-
--spec send_to_graphite(string(), string(), pos_integer()) -> ok | {error, term()}.
-   
-send_to_graphite(MetricStr, GraphiteHost, GraphitePort) ->
-    case gen_tcp:connect(GraphiteHost, GraphitePort, [list, {packet, 0}]) of
-        {ok, Sock} ->
-            _ = gen_tcp:send(Sock, MetricStr),
-            gen_tcp:close(Sock),
-            io:format("Metrics updated to graphite at ~p ~n", [GraphiteHost]),
-            ok;
-        {error, Reason} ->
-            io:format("Failed to connect to graphite host ~p for reason ~p ~n", [GraphiteHost, Reason]),
-            {error, Reason}
-    end. 
 
 -spec mean(list()) -> number().
 

@@ -19,7 +19,7 @@
                
 -type state() :: #state{}.
 
--spec start_link(pos_integer(), string(), pos_integer(), string(), vm_metrics_type(), boolean()) -> {ok, pid()} | {error, term()}.
+-spec start_link(pos_integer(), string(), pos_integer(), string(), list(), boolean()) -> {ok, pid()} | {error, term()}.
 
 start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics) ->
     %% io:format("graphsom_timer started ~n"),
@@ -49,7 +49,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMe
 -spec handle_cast(cast_msg_type(), state()) -> {noreply, state()} | {stop, normal, state()}.
 
 handle_cast(report, State) -> 
-    graphsom:report_metrics(State#state.graphite_host, State#state.graphite_port, 
+    _ = graphsom:report_metrics(State#state.graphite_host, State#state.graphite_port, 
                             State#state.graphite_prefix, State#state.vm_metrics,
                             State#state.report_all_user_metrics),
     {noreply, State};

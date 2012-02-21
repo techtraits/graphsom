@@ -62,8 +62,8 @@ handle_cast(report, State = #state{ graphite_host = GHost, graphite_port = GPort
     {noreply, State};
 
 handle_cast({register, FolsomMetric}, State) ->
-    State1 = State#state{ folsom_metrics = folsom_metrics ++ [FolsomMetric]},
-    {noreply, State1};
+    RegMetrics = State#state.folsom_metrics ++ [FolsomMetric],
+    {noreply, State#state{ folsom_metrics = RegMetrics }};
 	
 handle_cast(stop, State) ->
    {stop, normal, State};

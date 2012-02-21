@@ -1,7 +1,7 @@
 -module(graphsom).
 
 %% all graphsom api would go in here
--export([register_folsom_metric/1]).
+-export([register_folsom_metric/1, registered_metrics/0]).
 
 %% Includes
 
@@ -19,3 +19,8 @@ register_folsom_metric(FolsomMetric) ->
             gen_server:cast(Gt, {register, FolsomMetric}),
             ok
     end.
+
+-spec registered_metrics() -> ok | {error, term()}.
+
+registered_metrics() ->
+    gen_server:call(whereis(graphsom_timer), registered_metrics).

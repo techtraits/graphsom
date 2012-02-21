@@ -73,6 +73,9 @@ handle_cast(_, State) ->
 
 -spec handle_call(term(), term(), state()) -> {reply, ok, state()}.
 
+handle_call(registered_metrics, _From, State) ->
+    {reply, State#state.folsom_metrics, State};
+
 handle_call(_,_,State) ->
 	{reply,ok,State}.
 

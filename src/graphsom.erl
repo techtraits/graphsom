@@ -1,7 +1,10 @@
 -module(graphsom).
 
 %% all graphsom api would go in here
--export([register_folsom_metric/1, registered_metrics/0]).
+-export([register_folsom_metric/1, 
+         registered_metrics/0, 
+         start_reporting/0,
+         stop_reporting/0]).
 
 %% Includes
 
@@ -12,15 +15,20 @@
 -spec register_folsom_metric(folsom_metric_name_type()) -> ok | {error, term()}.
 
 register_folsom_metric(FolsomMetric) ->
-    case whereis(graphsom_timer) of
-        undefined ->
-            {error, graphsom_timer_not_found};
-        Gt ->
-            gen_server:cast(Gt, {register, FolsomMetric}),
-            ok
-    end.
+   graphsom_timer:register_folsom_metric(FolsomMetric).
 
 -spec registered_metrics() -> ok | {error, term()}.
 
 registered_metrics() ->
-    gen_server:call(whereis(graphsom_timer), registered_metrics).
+   graphsom_timer:get_registered_metrics().
+
+-spec start_reporting() -> ok | {error, term()}.
+
+start_reporting() ->
+   graphsom_timer:start_reporting().
+
+-spec stop_reporting() -> ok | {error, term()}.
+
+stop_reporting() ->
+   graphsom_timer:stop_reporting().
+        

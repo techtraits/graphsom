@@ -3,6 +3,11 @@
 
 -export([init/1, handle_call/3, handle_cast/2]). 
 -export([handle_info/2, terminate/2, code_change/3]).
+
+-export([get_registered_metrics/0, 
+         register_folsom_metric/1, 
+         start_reporting/0, 
+         stop_reporting/0]).
  
 -export([start_link/6, stop/0]).
 
@@ -13,9 +18,10 @@
                 graphite_host,                % graphite server host
                 graphite_port,	              % graphite server port
                 graphite_prefix,              % prefix added to all graphite keys
-                vm_metrics,	              % list of vm metrics to report
+                vm_metrics,	                  % list of vm metrics to report
                 report_all_folsom_metrics,    % whether to report all folsom  metrics
-                folsom_metrics                % list of registered folsom metrics
+                folsom_metrics,               % list of registered folsom metrics
+                report = false :: boolean()   % whether to report metrics or not
                }).               
                
 -type state() :: #state{}.
@@ -41,16 +47,41 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllFolsom
       graphite_prefix = Prefix,
       vm_metrics = VmMetrics,
       report_all_folsom_metrics = AllFolsomMetrics,
-      folsom_metrics = []
+      folsom_metrics = [],
+      report = false
      },
     %% io:format("graphsom_timer Vm Metrics: ~w ~n", [VmMetrics]),
     {ok, State}.
 
--type cast_msg_type() :: report | stop | term().
+-spec get_registered_metrics() -> list().
+
+get_registered_metrics() ->
+    gen_server:call(?MODULE, registered_metrics).
+
+-spec register_folsom_metric(folsom_metric_name_type()) -> ok | {error, term()}.
+
+register_folsom_metric(FolsomMetric) -> 
+    gen_server:cast(?MODULE, {register, FolsomMetric}).
+
+-spec start_reporting() -> ok | {error, term()}.
+
+start_reporting() -> 
+    gen_server:cast(?MODULE, start_reporting).
+
+-spec stop_reporting() -> ok | {error, term()}.
+
+stop_reporting() ->
+    gen_server:cast(?MODULE, stop_reporting).
+
+-type cast_msg_type() :: report | stop | start_reporting | stop_reporting | term().
 
 -spec handle_cast(cast_msg_type(), state()) -> {noreply, state()} | {stop, normal, state()}.
 
-handle_cast(report, State = #state{ graphite_host = GHost, graphite_port = GPort, graphite_prefix = GPrefix}) ->
+%% don't do anything if report is set to false
+handle_cast(report, State = #state{ report = false }) ->
+    {noreply, State};
+
+handle_cast(report, State = #state{ graphite_host = GHost, graphite_port = GPort, graphite_prefix = GPrefix, report = true}) ->
     VmMetrics = State#state.vm_metrics,
     Metrics = case State#state.report_all_folsom_metrics of
                   true ->
@@ -64,7 +95,13 @@ handle_cast(report, State = #state{ graphite_host = GHost, graphite_port = GPort
 handle_cast({register, FolsomMetric}, State) ->
     RegMetrics = State#state.folsom_metrics ++ [FolsomMetric],
     {noreply, State#state{ folsom_metrics = RegMetrics }};
-	
+
+handle_cast(start_reporting, State = #state{}) ->
+    {noreply, State#state{ report = true }};
+
+handle_cast(stop_reporting, State = #state{}) ->
+    {noreply, State#state{ report = false }};
+
 handle_cast(stop, State) ->
    {stop, normal, State};
    

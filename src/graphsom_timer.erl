@@ -7,7 +7,8 @@
 -export([get_registered_metrics/0, 
          register_folsom_metric/1, 
          start_reporting/0, 
-         stop_reporting/0]).
+         stop_reporting/0,
+         update_config/2]).
  
 -export([start_link/6, stop/0]).
 
@@ -73,6 +74,12 @@ start_reporting() ->
 stop_reporting() ->
     gen_server:cast(?MODULE, stop_reporting).
 
+-spec update_config(atom(), term()) -> ok.
+
+update_config(Key, Val) ->
+    gen_server:cast(?MODULE, {config_update, {Key, Val}}),
+    ok.
+
 -type cast_msg_type() :: report | stop | start_reporting | stop_reporting | term().
 
 -spec handle_cast(cast_msg_type(), state()) -> {noreply, state()} | {stop, normal, state()}.
@@ -96,11 +103,14 @@ handle_cast({register, FolsomMetric}, State) ->
     RegMetrics = State#state.folsom_metrics ++ [FolsomMetric],
     {noreply, State#state{ folsom_metrics = RegMetrics }};
 
+handle_cast({update_config, {Key, Val}}, State) ->
+    {noreply, update_state(Key, Val, State)};    
+
 handle_cast(start_reporting, State = #state{}) ->
-    {noreply, State#state{ report = true }};
+    {noreply, update_state(report, true, State)};
 
 handle_cast(stop_reporting, State = #state{}) ->
-    {noreply, State#state{ report = false }};
+    {noreply, update_state(report, false, State)};
 
 handle_cast(stop, State) ->
    {stop, normal, State};
@@ -152,4 +162,15 @@ stringify_metrics(Metrics, VmMetrics, GPrefix, CurTime) ->
     MList = graphsom_folsom:get_metrics(Metrics, VmMetrics),
     lists:flatten([graphsom_graphite:stringify_proplist_metric(Name, Val, GPrefix, CurTime, "")|| {Name, Val} <- MList]).
 
+-spec update_state(atom(), term(), state()) -> ok.
 
+update_state(report_interval, Val, State) when is_number(Val) -> State#state{ report_interval = Val};
+update_state(graphite_host, Val, State) when is_list(Val) -> State#state{ graphite_host = Val};
+update_state(graphite_port, Val, State) when is_integer(Val) -> State#state{ graphite_port = Val};
+update_state(graphite_prefix, Val, State) when is_list(Val) -> State#state{ graphite_prefix = Val};
+update_state(graphite_host, Val, State) when is_list(Val) -> State#state{ graphite_host = Val};
+update_state(vm_metrics, Val, State) when is_list(Val) -> State#state{ vm_metrics = Val};
+update_state(report_all_folsom_metrics, Val, State) when is_boolean(Val) -> State#state{ report_all_folsom_metrics = Val};
+update_state(folsom_metrics, Val, State) when is_list(Val) -> State#state{ folsom_metrics = Val};
+update_state(report, Val, State) when is_boolean(Val) -> State#state{ report = Val};
+update_state(_, _, State) -> State.

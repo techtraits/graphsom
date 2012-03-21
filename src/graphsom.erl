@@ -4,7 +4,8 @@
 -export([register_folsom_metric/1, 
          registered_metrics/0, 
          start_reporting/0,
-         stop_reporting/0]).
+         stop_reporting/0,
+         update_config/2]).
 
 %% Includes
 
@@ -31,4 +32,8 @@ start_reporting() ->
 
 stop_reporting() ->
    graphsom_timer:stop_reporting().
-        
+
+-spec update_config(atom(), term()) -> ok.
+
+update_config(Key, Val) ->
+    graphsom_timer:update_config(Key, Val).

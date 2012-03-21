@@ -11,7 +11,7 @@ report(MetricStr, GraphiteHost, GraphitePort) ->
         {ok, Sock} ->
             _ = gen_tcp:send(Sock, MetricStr),
             gen_tcp:close(Sock),
-            io:format("Metrics updated to graphite at ~p ~n", [GraphiteHost]),
+            % io:format("Metrics updated to graphite at ~p ~n", [GraphiteHost]),
             ok;
         {error, Reason} ->
             io:format("Failed to connect to graphite host ~p for reason ~p ~n", [GraphiteHost, Reason]),

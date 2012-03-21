@@ -22,6 +22,7 @@ start(_StartType, _StartArgs) ->
 
 start() ->
     Config = application:get_all_env(graphsom),
+    io:format("Graphsom App started with config ~w ~n", [Config]),
     graphsom_sup:start_link(Config).
 
 -spec stop([]) -> ok. 

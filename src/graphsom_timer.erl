@@ -106,7 +106,7 @@ stop() ->
 report_metrics(Metrics, VmMetrics, GHost, GPort, GPrefix) ->
     CurTime = graphsom_util:current_time(),
     MetricStr = stringify_metrics(Metrics, VmMetrics, GPrefix, CurTime),
-    io:format("Metric string: ~s ~n", [MetricStr]),
+    % io:format("Metric string: ~s ~n", [MetricStr]),
     graphsom_graphite:report(MetricStr, GHost, GPort).
 
 -spec stringify_metrics(list(), list(),  string(), pos_integer()) -> string().

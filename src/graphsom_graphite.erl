@@ -23,7 +23,7 @@ report(MetricStr, GraphiteHost, GraphitePort) ->
 -spec stringify_proplist_metric(folsom_metric_name_type(), folsom_metric_value_type(), string(), pos_integer(), string()) -> string().
 
 stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, Str) when is_number(MetricValue) ->
-    io_lib:format("~s~s.~s ~B ~w~n", [Str, Prefix, MetricName, MetricValue, CurTime]);
+    io_lib:format("~s~s.~s ~w ~w~n", [Str, Prefix, MetricName, MetricValue, CurTime]);
 
 stringify_proplist_metric(MetricName, {SubName, MetricValue}, Prefix, CurTime, Str) ->
     NewPrefix = io_lib:format("~s.~s", [Prefix, MetricName]),

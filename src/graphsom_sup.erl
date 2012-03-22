@@ -4,7 +4,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/1, start_link/6]).
+-export([start_link/0, start_link/1, start_link/6]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -22,14 +22,17 @@
 -define(GRAPHITE_HOST, "localhost").
 -define(GRAPHITE_PORT, 2003).
 -define(GRAPHITE_PREFIX, "graphsom").
--define(VM_METRICS, [memory, system_info, statistics, process_info, port_info]).
+-define(VM_METRICS, []).
 -define(REPORT_ALL_FOLSOM_METRICS, false).
 
 
 %% ===================================================================
 %% API functions
 %% ===================================================================
+-spec start_link() -> {ok, pid()}.
 
+start_link() ->
+    start_link([]).
 
 -spec start_link(config()) -> {ok, pid()}.
 

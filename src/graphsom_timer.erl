@@ -77,7 +77,7 @@ stop_reporting() ->
 -spec update_config(atom(), term()) -> ok.
 
 update_config(Key, Val) ->
-    gen_server:cast(?MODULE, {config_update, {Key, Val}}),
+    gen_server:cast(?MODULE, {update_config, {Key, Val}}),
     ok.
 
 -type cast_msg_type() :: report | stop | start_reporting | stop_reporting | term().

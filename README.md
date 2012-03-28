@@ -33,26 +33,21 @@ Setup [rebar](https://github.com/basho/rebar)
     cd graphsom
 	chmod u+x rebar  
     
-Or
+or make [rebar](https://github.com/basho/rebar) executable from source  
 
-Make [rebar](https://github.com/basho/rebar) executable from source  
-    
-Get dependencies (only [folsom](https://github.com/boundary/folsom))
+Get dependencies & compile 
 
     mkdir deps
     ./rebar get-deps
-    
-Compile
-
     ./rebar compile
-    
-Creating a release
+
+Create a release
 
     mkdir rel
     cd rel
     ../rebar create-node nodeid=graphsom
     
-At this point the release folder (`rel`) should contain `reltool.config` (release
+At this point, the release folder `rel` should contain `reltool.config` (release
 tool configuration file). We need to tell `reltool` where to
 find `graphsom` and `folsom` applications. This can be done by
 specifying `lib_dir` in `reltool.config` as follows:
@@ -80,9 +75,11 @@ Running graphsom node:
 
 Alternatively, Makefile is provided for convenience. 
 
+Note: Graphsom takes care of starting `folsom`.
+
 **Configuration Parameters**
 
-The configuration for graphsom can be added to `rel/files/sys.config`. An example configuration:
+The configuration parameters for graphsom can be added to `rel/files/sys.config`. An example configuration:
     
     {graphsom, [
              {report_interval, 30000},     %% report interval (ms)
@@ -99,23 +96,18 @@ metric names. For example, "response_time" would be reported as
 
 * `vm_metrics` can be used to report folsom VM metrics
 
-* If `report_all_folsom_metrics` is set `true`. Graphsom reports all folsom
-  metrics that exist at the end of a reporting interval.
-  Alternatively, graphsom offers a `register_folsom_metric` API for
-  registering metrics that are to be reported to graphite.
-
-Note: Graphsom takes care of starting `folsom`.
+* If `report_all_folsom_metrics` is set to `true`, graphsom reports all folsom
+  metrics that exist at the time of reporting. Alternatively, graphsom
+  offers a `register_folsom_metric` API for registering metrics that are to be reported to graphite.
 
 **Usage**
 
-In the console you can:
-
-Add Some metrics:
+Add some folsom metrics ([folsom API](https://github.com/boundary/folsom)):
 
     folsom_metrics:new_counter(metric_name_1).
     folsom_metrics:new_meter(metric_name_2).
 
-Update values for the metrics:
+Update values for the metrics ([folsom API](https://github.com/boundary/folsom)):
 
 	folsom_metrics:notify({metric_name_1, {inc, 100}}).
     folsom_metrics:notify({metric_name_2, 300}).
@@ -125,11 +117,19 @@ Register these metrics with `graphsom`:
     graphsom:register_folsom_metric(metric_name_1).
     graphsom:register_folsom_metric(metric_name_2).
     
+Dynamically updating configuration parameters:
+
+    graphsom:update_config(report_interval, 60000)
+
 Tell graphsom to start reporting:
 
     graphsom:start_reporting().
 
-Check graphite for the values   
+To get the list of currently registered folsom metrics
+
+    graphsom:registered_metrics().
+    
+Check graphite for the values.   
 
 Authors 
 ------

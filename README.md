@@ -1,7 +1,10 @@
 graphsom
 ===============
 
-graphsom dumps provides visualizations for metrics collected using [folsom](https://github.com/boundary/folsom). Currently we support only [Graphite](http://graphite.wikidot.com/) visualizations but we will be adding support for multiple backends soon. 
+graphsom dumps provides visualizations for metrics collected using
+[folsom](https://github.com/boundary/folsom). Currently graphsom only
+supports [Graphite](http://graphite.wikidot.com/) visualizations.
+Support for multiple backends will be added soon. 
 
 Note: [Graphite](http://graphite.wikidot.com/) is good, despite the
 website being really ghetto. 
@@ -10,13 +13,15 @@ Status
 ------
 
 * Supports all [folsom](https://github.com/boundary/folsom) metric
-  types (`gauge`, `counter`, `meter`, `histogram` and `history`)
+  types: `gauge`, `counter`, `meter`, `histogram` and `history`
 * Supports all [folsom](https://github.com/boundary/folsom) VM metrics
   including `memory`,`statistics`, `process_info`, `system_info` and `port_info`
-* Support for other visualization backends is coming very soon
+* Support for other visualization backends coming soon
 
 Getting Started
 --------------
+
+**Setup**
 
 Prerequisites 
 
@@ -25,12 +30,16 @@ Prerequisites
 * [Download](https://github.com/downloads/basho/rebar/rebar) or [build](https://github.com/basho/rebar) rebar
 * Clone [graphsom](https://github.com/techtraits/graphsom.git)
 
-Building graphsom
+Setup [rebar](https://github.com/basho/rebar)
 
     cd graphsom
-	chmod u+x rebar  # Make [rebar](https://github.com/basho/rebar) executable  
+	chmod u+x rebar  
     
-Get all dependencies (only [folsom](https://github.com/boundary/folsom))
+Or
+
+Make [rebar](https://github.com/basho/rebar) executable from source  
+    
+Get dependencies (only [folsom](https://github.com/boundary/folsom))
 
     mkdir deps
     ./rebar get-deps
@@ -45,16 +54,16 @@ Creating a release
     cd rel
     ../rebar create-node nodeid=graphsom
     
-At this point the `rel` folder should have a `reltool.config` (release
-tool configuration). We need to tell the `reltool.config` where to
+At this point the release folder (`rel`) should contain `reltool.config` (release
+tool configuration file). We need to tell `reltool` where to
 find `graphsom` and `folsom` applications. This can be done by
-specifying `lib_dir` as follows:
+specifying `lib_dir` in `reltool.config` as follows:
 
     {lib_dirs, ["../../", "../deps/"]},
     
-We just need to make one last change before we can generate a release
-and run it. We want folsom application to be included into the
-release. This can be done as follows:
+Since by default applications are not automatically added to the
+release, we can add folsom in our release by adding the following line
+in `reltool.config`:
 
     {app, stdlib, [{incl_cond, include}]},
     {app, kernel, [{incl_cond, include}]},
@@ -62,8 +71,8 @@ release. This can be done as follows:
     **{app, folsom, [{incl_cond, include}]},**
     {app, graphsom, [{incl_cond, include}]}
     
-Generating a release (a self-containing deploy-able directory
-containing all the applications for your node):
+Generating a release (a self-containing deployable directory
+containing all the applications in your node):
 
     ./rebar generate
 
@@ -71,11 +80,11 @@ Running graphsom node:
 
     ./rel/graphsom/bin/graphsom console
 
-Or alternatively Makefile wrappers can be used for convenience. 
+Alternatively, Makefile is provided for convenience. 
 
-Graphsom will dump all `folsom metrics` every `30 seconds`
-to the local graphite backend. The configuration for graphsom can be
-added to `rel/files/sys.config`. An example configuration:
+**Configuration Parameters**
+
+The configuration for graphsom can be added to `rel/files/sys.config`. An example configuration:
     
     {graphsom, [
              {report_interval, 30000},     %% report interval (ms)
@@ -92,12 +101,14 @@ metric names. For example, "response_time" would be reported as
 
 * `vm_metrics` can be used to report folsom VM metrics
 
-* `report_all_folsom_metrics` if set to true reports all folsom
-  metrics at the end of a reporting interval. Alternatively, if it is
-  `false`, graphsom offers a `register_folsom_metric` API for
-  registering only those metrics that are to be reported to graphite.
+* If `report_all_folsom_metrics` is set `true`. Graphsom reports all folsom
+  metrics that exist at the end of a reporting interval.
+  Alternatively, graphsom offers a `register_folsom_metric` API for
+  registering metrics that are to be reported to graphite.
 
-**Note:** Graphsom takes care of starting `folsom`.
+Note: Graphsom takes care of starting `folsom`.
+
+**Usage**
 
 In the console you can:
 

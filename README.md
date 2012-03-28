@@ -21,8 +21,6 @@ Status
 Getting Started
 --------------
 
-**Setup**
-
 Prerequisites 
 
 * [Download](https://launchpad.net/graphite/+download),

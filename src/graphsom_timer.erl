@@ -8,7 +8,7 @@
          start_reporting/0, 
          stop_reporting/0,
          update_config/2
-        ]).
+]).
  
 -export([start_link/6, stop/0]).
 
@@ -78,12 +78,7 @@ handle_cast(report, State = #state{ report = false }) ->
 
 handle_cast(report, State = #state{ graphite_host = GHost, graphite_port = GPort, graphite_prefix = GPrefix, report = true}) ->
     VmMetrics = State#state.vm_metrics,
-    Metrics = case State#state.report_all_folsom_metrics of
-                  true ->
-                      folsom_metrics:get_metrics();
-                  _ ->
-                      graphsom_folsom:registered_metrics()
-              end,
+    Metrics = graphsom_folsom:get_metrics(State#state.report_all_folsom_metrics),
     _ = report_metrics(Metrics, VmMetrics, GHost, GPort, GPrefix),
     {noreply, State};
 

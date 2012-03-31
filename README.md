@@ -112,12 +112,15 @@ Update values for the metrics ([folsom API](https://github.com/boundary/folsom))
 	folsom_metrics:notify({metric_name_1, {inc, 100}}).
     folsom_metrics:notify({metric_name_2, 300}).
 
-Register these metrics with `graphsom`:
+Register folsom metric with `graphsom` for reporting:
 
     graphsom:register_folsom_metric(metric_name_1).
-    graphsom:register_folsom_metric(metric_name_2).
-    
-Dynamically updating configuration parameters:
+
+De-Register folsom metric:
+
+    graphsom:register_folsom_metric(metric_name_1).
+
+Changing reporting parameters at runtime:
 
     graphsom:update_config(report_interval, 60000)
 
@@ -129,7 +132,7 @@ To get the list of currently registered folsom metrics
 
     graphsom:registered_metrics().
     
-Check graphite for the values.   
+**Check graphite for the values!**
 
 Authors 
 ------

@@ -11,9 +11,6 @@
          deregister/1
         ]).
 
-
-
-
 -spec registered_metrics() -> list().
 
 registered_metrics() ->

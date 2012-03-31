@@ -25,7 +25,6 @@
 -define(VM_METRICS, []).
 -define(REPORT_ALL_FOLSOM_METRICS, false).
 
-
 %% ===================================================================
 %% API functions
 %% ===================================================================
@@ -48,8 +47,8 @@ start_link(Config) ->
 
 start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics) ->
     %% io:format("graphsom_sup: VmStats: ~w ~n", [VmMetrics]),
-    supervisor:start_link({local, ?MODULE}, ?MODULE,
-                          [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics]).
+    _ = ets:new(?GRAPHSOM_FOLSOM_METRICS, [set, named_table, public, {read_concurrency,true}]),
+    supervisor:start_link({local, ?MODULE}, ?MODULE, [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics]).
 
 %% ===================================================================
 

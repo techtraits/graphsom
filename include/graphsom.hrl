@@ -25,3 +25,5 @@
 -type folsom_metric() :: {folsom_metric_name_type(), [{type, folsom_metric_type()}]}.
 
 -type folsom_metric_value_type() :: number() | list().
+
+-define(GRAPHSOM_FOLSOM_METRICS, graphsom_folsom_metrics).

@@ -4,11 +4,11 @@
 -export([init/1, handle_call/3, handle_cast/2]). 
 -export([handle_info/2, terminate/2, code_change/3]).
 
--export([get_registered_metrics/0, 
-         register_folsom_metric/1, 
+-export([
          start_reporting/0, 
          stop_reporting/0,
-         update_config/2]).
+         update_config/2
+        ]).
  
 -export([start_link/6, stop/0]).
 
@@ -21,7 +21,6 @@
                 graphite_prefix,              % prefix added to all graphite keys
                 vm_metrics,	                  % list of vm metrics to report
                 report_all_folsom_metrics,    % whether to report all folsom  metrics
-                folsom_metrics,               % list of registered folsom metrics
                 report = false :: boolean()   % whether to report metrics or not
                }).               
                
@@ -48,21 +47,10 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllFolsom
       graphite_prefix = Prefix,
       vm_metrics = VmMetrics,
       report_all_folsom_metrics = AllFolsomMetrics,
-      folsom_metrics = [],
       report = false
      },
     %% io:format("graphsom_timer Vm Metrics: ~w ~n", [VmMetrics]),
     {ok, State}.
-
--spec get_registered_metrics() -> list().
-
-get_registered_metrics() ->
-    gen_server:call(?MODULE, registered_metrics).
-
--spec register_folsom_metric(folsom_metric_name_type()) -> ok | {error, term()}.
-
-register_folsom_metric(FolsomMetric) -> 
-    gen_server:cast(?MODULE, {register, FolsomMetric}).
 
 -spec start_reporting() -> ok | {error, term()}.
 
@@ -94,14 +82,10 @@ handle_cast(report, State = #state{ graphite_host = GHost, graphite_port = GPort
                   true ->
                       folsom_metrics:get_metrics();
                   _ ->
-                      State#state.folsom_metrics
+                      graphsom_folsom:registered_metrics()
               end,
     _ = report_metrics(Metrics, VmMetrics, GHost, GPort, GPrefix),
     {noreply, State};
-
-handle_cast({register, FolsomMetric}, State) ->
-    RegMetrics = State#state.folsom_metrics ++ [FolsomMetric],
-    {noreply, State#state{ folsom_metrics = RegMetrics }};
 
 handle_cast({update_config, {Key, Val}}, State) ->
     {noreply, update_state(Key, Val, State)};    
@@ -119,9 +103,6 @@ handle_cast(_, State) ->
 	{noreply, State}.
 
 -spec handle_call(term(), term(), state()) -> {reply, ok, state()}.
-
-handle_call(registered_metrics, _From, State) ->
-    {reply, State#state.folsom_metrics, State};
 
 handle_call(_,_,State) ->
 	{reply,ok,State}.
@@ -159,7 +140,7 @@ report_metrics(Metrics, VmMetrics, GHost, GPort, GPrefix) ->
 -spec stringify_metrics(list(), list(),  string(), pos_integer()) -> string().
 
 stringify_metrics(Metrics, VmMetrics, GPrefix, CurTime) ->
-    MList = graphsom_folsom:get_metrics(Metrics, VmMetrics),
+    MList = graphsom_folsom:metric_values(Metrics, VmMetrics),
     lists:flatten([graphsom_graphite:stringify_proplist_metric(Name, Val, GPrefix, CurTime, "")|| {Name, Val} <- MList]).
 
 -spec update_state(atom(), term(), state()) -> ok.
@@ -171,6 +152,5 @@ update_state(graphite_prefix, Val, State) when is_list(Val) -> State#state{ grap
 update_state(graphite_host, Val, State) when is_list(Val) -> State#state{ graphite_host = Val};
 update_state(vm_metrics, Val, State) when is_list(Val) -> State#state{ vm_metrics = Val};
 update_state(report_all_folsom_metrics, Val, State) when is_boolean(Val) -> State#state{ report_all_folsom_metrics = Val};
-update_state(folsom_metrics, Val, State) when is_list(Val) -> State#state{ folsom_metrics = Val};
 update_state(report, Val, State) when is_boolean(Val) -> State#state{ report = Val};
 update_state(_, _, State) -> State.

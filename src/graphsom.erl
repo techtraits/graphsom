@@ -1,7 +1,8 @@
 -module(graphsom).
 
 %% all graphsom api would go in here
--export([register_folsom_metric/1, 
+-export([register_folsom_metric/1,
+         deregister_folsom_metric/1,
          registered_metrics/0, 
          start_reporting/0,
          stop_reporting/0,
@@ -16,12 +17,17 @@
 -spec register_folsom_metric(folsom_metric_name_type()) -> ok | {error, term()}.
 
 register_folsom_metric(FolsomMetric) ->
-   graphsom_timer:register_folsom_metric(FolsomMetric).
+   graphsom_folsom:register(FolsomMetric).
+
+-spec deregister_folsom_metric(folsom_metric_name_type()) -> ok | {error, term()}.
+
+deregister_folsom_metric(FolsomMetric) ->
+   graphsom_folsom:deregister(FolsomMetric).
 
 -spec registered_metrics() -> ok | {error, term()}.
 
 registered_metrics() ->
-   graphsom_timer:get_registered_metrics().
+   graphsom_folsom:registered_metrics().
 
 -spec start_reporting() -> ok | {error, term()}.
 

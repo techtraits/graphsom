@@ -126,6 +126,9 @@ stop() ->
 
 -spec report_metrics(list(), list(), string(), pos_integer(), string()) -> ok | {error | term()}.
 
+report_metrics([], [], _GHost, _GPort, _Gprefix) ->
+    ok;
+
 report_metrics(Metrics, VmMetrics, GHost, GPort, GPrefix) ->
     CurTime = graphsom_util:current_time(),
     MetricStr = stringify_metrics(Metrics, VmMetrics, GPrefix, CurTime),

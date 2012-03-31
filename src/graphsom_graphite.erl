@@ -6,6 +6,8 @@
 
 -spec report(string(), string(), pos_integer()) -> ok | {error, term()}.
    
+report("", _GraphiteHost, _GraphitePort) ->
+    ok;
 report(MetricStr, GraphiteHost, GraphitePort) ->
     case gen_tcp:connect(GraphiteHost, GraphitePort, [list, {packet, 0}]) of
         {ok, Sock} ->

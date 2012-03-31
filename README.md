@@ -39,24 +39,25 @@ De-register folsom metric:
 
     graphsom:deregister_folsom_metric(metric_name_1).
 
-Changing reporting parameters at runtime:
+To get the list of currently registered folsom metrics
 
-    graphsom:update_config(report_interval, 60000)
+    graphsom:registered_metrics().
 
 Tell graphsom to start reporting:
 
     graphsom:start_reporting().
+    
+Check graphite for the values!!
 
 To get the list of currently registered folsom metrics
 
     graphsom:registered_metrics().
-    
-Check graphite for the values!!
 
 Configuration
 -------------
 
-The configuration parameters for graphsom can be added to `rel/files/sys.config`. An example configuration:
+The configuration parameters for graphsom can be added to application
+config file (`[RELEASE]/files/sys.config`). An example configuration:
     
     {graphsom, [
              {report_interval, 30000},     %% report interval (ms)
@@ -74,9 +75,8 @@ metric names. For example, "response_time" would be reported as
 * `vm_metrics` can be used to report folsom VM metrics
 
 * If `report_all_folsom_metrics` is set to `true`, graphsom reports all folsom
-  metrics that exist at the time of reporting. Alternatively, graphsom
-  offers a `register_folsom_metric` API for registering metrics that are to be reported to graphite.
-
+  metrics that exist at the time of reporting. Alternatively,
+  `register_folsom_metric` API can be used for reporting selective metrics to graphite.
 
 Playing around
 --------------
@@ -88,13 +88,11 @@ Prerequisites
 * [Download](https://github.com/downloads/basho/rebar/rebar) or [build](https://github.com/basho/rebar) rebar
 * Clone [graphsom](https://github.com/techtraits/graphsom.git)
 
-Setup [rebar](https://github.com/basho/rebar)
+Setup [rebar](https://github.com/basho/rebar) or make [rebar](https://github.com/basho/rebar) executable from source  
 
     cd graphsom
 	chmod u+x rebar  
     
-or make [rebar](https://github.com/basho/rebar) executable from source  
-
 Get dependencies & compile 
 
     mkdir deps

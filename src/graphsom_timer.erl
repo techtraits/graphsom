@@ -77,9 +77,8 @@ handle_cast(report, State = #state{ report = false }) ->
     {noreply, State};
 
 handle_cast(report, State = #state{ graphite_host = GHost, graphite_port = GPort, graphite_prefix = GPrefix, report = true}) ->
-    VmMetrics = State#state.vm_metrics,
-    Metrics = graphsom_folsom:get_metrics(State#state.report_all_folsom_metrics),
-    _ = report_metrics(Metrics, VmMetrics, GHost, GPort, GPrefix),
+    MetricValues = graphsom_metrics:all(State#state.vm_metrics, State#state.report_all_folsom_metrics),
+    _ = report_metrics(MetricValues, GHost, GPort, GPrefix),
     {noreply, State};
 
 handle_cast({update_config, {Key, Val}}, State) ->
@@ -124,22 +123,21 @@ stop() ->
 
 %% Internal API
 
--spec report_metrics(list(), list(), string(), pos_integer(), string()) -> ok | {error | term()}.
+-spec report_metrics(list(), string(), pos_integer(), string()) -> ok | {error | term()}.
 
-report_metrics([], [], _GHost, _GPort, _Gprefix) ->
+report_metrics([], _GHost, _GPort, _Gprefix) ->
     ok;
 
-report_metrics(Metrics, VmMetrics, GHost, GPort, GPrefix) ->
+report_metrics(MetricValues, GHost, GPort, GPrefix) ->
     CurTime = graphsom_util:current_time(),
-    MetricStr = stringify_metrics(Metrics, VmMetrics, GPrefix, CurTime),
+    MetricStr = stringify_metrics(MetricValues, GPrefix, CurTime),
     % io:format("Metric string: ~s ~n", [MetricStr]),
     graphsom_graphite:report(MetricStr, GHost, GPort).
 
--spec stringify_metrics(list(), list(),  string(), pos_integer()) -> string().
+-spec stringify_metrics(list(),  string(), pos_integer()) -> string().
 
-stringify_metrics(Metrics, VmMetrics, GPrefix, CurTime) ->
-    MList = graphsom_folsom:metric_values(Metrics, VmMetrics),
-    lists:flatten([graphsom_graphite:stringify_proplist_metric(Name, Val, GPrefix, CurTime, "")|| {Name, Val} <- MList]).
+stringify_metrics(MetricValues, GPrefix, CurTime) ->
+    lists:flatten([graphsom_graphite:stringify_proplist_metric(Name, Val, GPrefix, CurTime, "")|| {Name, Val} <- MetricValues]).
 
 -spec update_state(atom(), term(), state()) -> ok.
 

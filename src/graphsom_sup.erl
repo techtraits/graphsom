@@ -47,7 +47,7 @@ start_link(Config) ->
 
 start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics) ->
     %% io:format("graphsom_sup: VmStats: ~w ~n", [VmMetrics]),
-    _ = ets:new(?GRAPHSOM_FOLSOM_METRICS, [set, named_table, public, {read_concurrency,true}]),
+    graphsom_metrics:init(),
     supervisor:start_link({local, ?MODULE}, ?MODULE, [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllUserMetrics]).
 
 %% ===================================================================

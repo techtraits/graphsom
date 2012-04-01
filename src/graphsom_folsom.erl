@@ -3,8 +3,6 @@
 -include("graphsom.hrl").
  
 -export([
-         get_metrics/0,
-         get_metrics/1,
          metric_values/2, 
          registered_metrics/0, 
          register/1, 
@@ -25,18 +23,6 @@ register(FolsomMetric) ->
 
 deregister(FolsomMetric) -> 
     true = ets:delete(?GRAPHSOM_FOLSOM_METRICS, FolsomMetric).
-
--spec get_metrics() -> list().
-
-get_metrics() ->
-    get_metrics(false).
-
--spec get_metrics(boolean()) -> list().
-
-get_metrics(_AllMetrics = true) ->
-    folsom_metrics:get_metrics();
-get_metrics(_AllMetrics = false) ->
-    registered_metrics().
 
 -spec metric_values(list(), list()) -> proplist().
 

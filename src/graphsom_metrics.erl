@@ -4,7 +4,7 @@
  
 -export([
         init/0,
-        register/3,
+        register/4,
         deregister/1,
         registered_metrics/0,
         all/0,
@@ -15,12 +15,13 @@
 
 init() -> create_tables_().
 
--spec register(atom(), atom(), atom()) -> ok.
+-spec register(atom(), atom(), atom(), list()) -> ok.
 
-register(MetricName, Module, FunName) ->
+register(MetricName, Module, FunName, Params) ->
     GMetric = #graphsom_metric{name = MetricName,  
                                module = Module, 
-                               func = FunName},
+                               func = FunName,
+                               params = Params},
     true = ets:insert(?GRAPHSOM_METRICS, GMetric).
 
 -spec deregister(atom()) -> ok.
@@ -61,8 +62,8 @@ metric_values_() ->
 
 -spec metric_value_(graphsom_metric()) -> tuple().
 
-metric_value_(#graphsom_metric{ name = Name, module = Module, func = Func }) ->
-    catch case erlang:apply(Module, Func, [Name]) of
+metric_value_(#graphsom_metric{ name = Name, module = Module, func = Func, params = Params }) ->
+    catch case erlang:apply(Module, Func, Params) of
               {'EXIT', _Reason} ->
                   io:format("Unable to get value for metric: ~p, reason: ~w~n", [Name, _Reason]),
                   {Name, []};

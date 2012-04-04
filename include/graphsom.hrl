@@ -4,7 +4,8 @@
         {
           name :: atom(),
           module :: atom(),
-          func :: atom()
+          func :: atom(),
+          params :: list()
         }
        ).
 

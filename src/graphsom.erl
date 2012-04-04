@@ -4,6 +4,7 @@
 -export([register_folsom_metric/1,
          deregister_folsom_metric/1,
          register_graphsom_metric/3,
+         register_graphsom_metric/4,
          deregister_graphsom_metric/1,
          registered_metrics/0, 
          start_reporting/0,
@@ -29,7 +30,12 @@ deregister_folsom_metric(FolsomMetric) ->
 -spec register_graphsom_metric(atom(), atom(), atom()) -> ok | {error, term()}.
 
 register_graphsom_metric(Name, Module, Func) ->
-    graphsom_metrics:register(Name, Module, Func).
+    graphsom_metrics:register(Name, Module, Func, []).
+
+-spec register_graphsom_metric(atom(), atom(), atom(), list()) -> ok | {error, term()}.
+
+register_graphsom_metric(Name, Module, Func, Params) when is_list(Params) ->
+    graphsom_metrics:register(Name, Module, Func, Params).
 
 -spec deregister_graphsom_metric(atom()) -> ok.
 
@@ -39,7 +45,7 @@ deregister_graphsom_metric(Name) ->
 -spec registered_metrics() -> ok | {error, term()}.
 
 registered_metrics() ->
-   graphsom_folsom:registered_metrics().
+   graphsom_metrics:registered_metrics().
 
 -spec start_reporting() -> ok | {error, term()}.
 

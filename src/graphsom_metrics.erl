@@ -79,12 +79,14 @@ registered_metrics_() ->
 -spec create_tables_() -> ok.
 
 create_tables_() ->
-    Tables = [?GRAPHSOM_FOLSOM_METRICS, ?GRAPHSOM_METRICS],
-    _ = [create_table_(Name) || Name <- Tables].
+    Tables = [{?GRAPHSOM_FOLSOM_METRICS, 1}, {?GRAPHSOM_METRICS, 2}],
+    _ = [create_table_(Name, KeyPos) || {Name, KeyPos} <- Tables].
 
--spec create_table_(atom()) -> ok.
+-spec create_table_(atom(), integer()) -> ok.
 
-create_table_(Name) when is_atom(Name) ->
-    _ = ets:new(Name, [set, named_table, public, {read_concurrency,true}]).
+create_table_(Name, KeyPos) 
+  when is_atom(Name),
+       is_integer(KeyPos) ->
+    _ = ets:new(Name, [set, named_table, public, {keypos, KeyPos}, {read_concurrency,true}]).
 
     

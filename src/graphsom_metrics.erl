@@ -81,8 +81,7 @@ registered_metrics_() ->
 -spec create_tables_() -> ok.
 
 create_tables_() ->
-    Tables = [{?GRAPHSOM_FOLSOM_METRICS, 1}, {?GRAPHSOM_METRICS, 2}],
-    _ = [create_table_(Name, KeyPos) || {Name, KeyPos} <- Tables],
+    _ = [create_table_(Name, KeyPos) || {Name, KeyPos} <- ?GRAPHSOM_ETS_TABLES],
     ok.
 
 -spec create_table_(atom(), integer()) -> ok.

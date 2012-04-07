@@ -3,6 +3,8 @@
 %% all graphsom api would go in here
 -export([register_folsom_metric/1,
          deregister_folsom_metric/1,
+         register_folsom_type_handler/3,
+         deregister_folsom_type_handler/1,
          register_graphsom_metric/3,
          register_graphsom_metric/4,
          deregister_graphsom_metric/1,
@@ -28,6 +30,16 @@ register_folsom_metric(FolsomMetric) ->
 deregister_folsom_metric(FolsomMetric) ->
    graphsom_folsom:deregister(FolsomMetric).
 
+-spec register_folsom_type_handler(folsom_metric_type(), atom(), atom()) -> ok | {error, term()}.
+
+register_folsom_type_handler(FolsomType, Module, Func) ->
+    graphsom_folsom:register_type_handler(FolsomType, Module, Func).
+
+-spec deregister_folsom_type_handler(folsom_metric_type()) -> ok | {error, term()}.
+
+deregister_folsom_type_handler(FolsomType) ->
+    graphsom_folsom:deregister_type_handler(FolsomType).
+    
 -spec register_graphsom_metric(atom(), atom(), atom()) -> ok | {error, term()}.
 
 register_graphsom_metric(Name, Module, Func) ->

@@ -6,7 +6,9 @@
          metric_values/2, 
          registered_metrics/0, 
          register/1, 
-         deregister/1
+         deregister/1,
+         register_type_handler/3,
+         deregister_type_handler/1
         ]).
 
 -spec registered_metrics() -> list().
@@ -24,6 +26,22 @@ register(FolsomMetric) ->
 
 deregister(FolsomMetric) -> 
     true = ets:delete(?GRAPHSOM_FOLSOM_METRICS, FolsomMetric),
+    ok.
+
+
+-spec register_type_handler(folsom_metric_type(), atom(), atom()) -> ok.
+
+register_type_handler(MetricType, Module, FunName) ->
+    FolsomHandler = #graphsom_folsom_type_handler{ type = MetricType,  
+                                                   module = Module, 
+                                                   func = FunName },
+    true = ets:insert(?GRAPHSOM_FOLSOM_TYPE_HANDLERS, FolsomHandler),
+    ok.
+
+-spec deregister_type_handler(folsom_metric_type()) -> ok.
+
+deregister_type_handler(FolsomType) ->
+    _ = ets:delete(?GRAPHSOM_FOLSOM_TYPE_HANDLERS, FolsomType),
     ok.
 
 -spec metric_values(list(), list()) -> proplist().

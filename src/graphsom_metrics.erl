@@ -8,12 +8,16 @@
         deregister/1,
         registered_metrics/0,
         all/0,
-        all/2
+        all/2,
+        default_folsom_handler/2
         ]).
 
 -spec init() -> ok.
 
-init() -> create_tables_().
+init() -> 
+    create_tables_(),
+    _ = [ graphsom_folsom:register_type_handler(Type, ?MODULE, default_folsom_handler) || Type <- [histogram, history]],
+    ok.
 
 -spec register(atom(), atom(), atom(), list()) -> ok.
 
@@ -91,5 +95,16 @@ create_table_(Name, KeyPos)
        is_integer(KeyPos) ->
     _ = ets:new(Name, [set, named_table, public, {keypos, KeyPos}, {read_concurrency,true}]),
     ok.
+
+-spec default_folsom_handler(folsom_metric_name_type(), folsom_metric_type()) -> list().
+
+default_folsom_handler(MetricName, histogram) ->
+    Values  = folsom_metrics:get_metric_value(MetricName),
+    [{count, length(Values)},
+     {mean_val, graphsom_util:mean(Values)}];
+  
+default_folsom_handler(MetricName, history) ->
+    Values = folsom_metrics:get_metric_value(MetricName),
+    [{count, length(Values)}].
 
     

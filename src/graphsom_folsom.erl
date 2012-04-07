@@ -81,7 +81,7 @@ metric_value(MetricName, MetricType) ->
             folsom_metrics:get_metric_value(MetricName)
     end.
 
--spec handle_folsom_metric(folsom_metric_name_type(), folsom_metric_name_type(), atom(), atom()) -> list().
+-spec handle_folsom_metric(folsom_metric_name_type(), folsom_metric_type(), atom(), atom()) -> list().
              
 handle_folsom_metric(MetricName, MetricType, Module, Func) ->
     catch case erlang:apply(Module, Func, [MetricName, MetricType]) of
@@ -91,8 +91,3 @@ handle_folsom_metric(MetricName, MetricType, Module, Func) ->
               Val ->
                   Val
           end.
-
-  
-
-
-

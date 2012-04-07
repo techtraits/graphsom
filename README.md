@@ -1,24 +1,29 @@
 graphsom
 ===============
 
-graphsom dumps provides visualizations for metrics collected using
-[folsom](https://github.com/boundary/folsom). Currently graphsom only
-supports [Graphite](http://graphite.wikidot.com/) visualizations.
-Support for multiple backends will be added soon. 
+graphsom is a metrics management system with the goal of providing
+flexible support for multiple metric systems and visualization
+backends for easily collecting and reporting metrics in erlang
+applications. 
 
-Note: [Graphite](http://graphite.wikidot.com/) is good, despite the
-website being really ghetto. 
+**[Getting started guide](https://github.com/techtraits/graphsom/wiki/Getting-Started-Guide)**
 
-**[Getting Started Guide](https://github.com/techtraits/graphsom/wiki/Getting-Started-Guide)**
+Features
+--------
 
-Status
-------
+**Multiple Metric Systems Support**
 
-* Supports all [folsom](https://github.com/boundary/folsom) metric
-  types: `gauge`, `counter`, `meter`, `histogram` and `history`
-* Supports all [folsom](https://github.com/boundary/folsom) VM metrics
-  including `memory`,`statistics`, `process_info`, `system_info` and `port_info`
-* Support for other visualization backends coming soon
+* [Folsom Metrics](https://github.com/boundary/folsom):
+    * All metric types: `gauge`, `counter`, `meter`, `histogram` and `history`
+    * All VM metrics: `memory`,`statistics`, `process_info`, `system_info` and `port_info`
+* A simple callback-based Graphsom Metrics API is available for custom
+  user-defined metrics
+* Support for [estatsd](https://github.com/RJ/estatsd) coming soon
+
+**Visualization Backends Support**  
+
+* Currently, only [Graphite](http://graphite.wikidot.com/) is
+  supported. Support for other visualization backends coming soon
 
 Usage
 -----
@@ -50,10 +55,6 @@ Tell graphsom to start reporting:
     graphsom:start_reporting().
     
 Check graphite for the values!!
-
-To get the list of currently registered folsom metrics
-
-    graphsom:registered_metrics().
 
 Configuration
 -------------

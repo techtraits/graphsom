@@ -6,7 +6,7 @@ graphsom is a flexible metrics management system for Erlang
 applications. It's main goal is for easier collection, management and
 reporting of metrics to multiple visualization backends. 
 
-**[Getting started guide](https://github.com/techtraits/graphsom/wiki/Getting-Started-Guide)**
+** >> [Getting started guide](https://github.com/techtraits/graphsom/wiki/Getting-Started-Guide)**
 
 Features
 --------
@@ -67,11 +67,10 @@ To register a custom metric:
     graphsom:register_graphsom_metric(METRIC_NAME, MODULE, FUN, PARAMS).
 
 Graphsom expects a property list as a response to the callback
-`MODULE:FUN` with `PARAMS` as parameters. Note that `FUN` must be
-exported by the module `MODULE` with the a correct arity.    
+`MODULE:FUN` with `PARAMS` as parameters. 
+Note that `FUN` must be exported by the module `MODULE` with the a correct arity.    
 
-For example, we can use Graphsom API to report the number of worker
-children of a `worker_sup` supervisor, i.e., the result of
+For example, we can use Graphsom API to report the number children of a `worker_sup` supervisor, i.e., the result of
 
     > supervisor:count_children(worker_sup).
     > [{specs,2},{active,2},{supervisors,1},{workers,1}]

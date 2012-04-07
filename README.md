@@ -59,19 +59,19 @@ Check graphite for the values!!
 Graphsom Metrics API
 --------------------
 
-Graphsom metrics API is offered for cases where a custom user-defined
+Graphsom metrics API is offered when a custom user-defined
 metric needs to be reported. 
   
 To register a custom metric:
 
-    graphsom:register_graphsom_metric(MetricName, MODULE, FUN, Params).
+    graphsom:register_graphsom_metric(METRIC_NAME, MODULE, FUN, PARAMS).
 
-Graphsom expects a property list as s response to a call to
-`ModuleName:FunName` with parameters `Params`. Note that `FunName`
-must be exported by the module `MODULE` with the right arity.    
+Graphsom expects a property list as a response to the callback
+`MODULE:FUN` with `PARAMS` as parameters. Note that `FUN` must be
+exported by the module `MODULE` with the a correct arity.    
 
 For example, we can use Graphsom API to report the number of worker
-children of an `worker_sup` supervisor, i.e., the result of
+children of a `worker_sup` supervisor, i.e., the result of
 
     > supervisor:count_children(worker_sup).
     > [{specs,2},{active,2},{supervisors,1},{workers,1}]
@@ -80,8 +80,6 @@ This can be directly registered with graphsom as follows:
     
     graphsom:register_graphsom_metric(worker_count, supervisor,
     count_children, [worker_sup]).
-
-
 
 Configuration
 -------------

@@ -1,10 +1,10 @@
 graphsom
 ===============
 
-graphsom is a metrics management system with the goal of providing
-flexible support for multiple metric systems and visualization
-backends for easily collecting and reporting metrics in erlang
-applications. 
+
+graphsom is a flexible metrics management system for Erlang
+applications. It's main goal is for easier collection, management and
+reporting of metrics to multiple visualization backends. 
 
 **[Getting started guide](https://github.com/techtraits/graphsom/wiki/Getting-Started-Guide)**
 
@@ -16,7 +16,7 @@ Features
 * [Folsom Metrics](https://github.com/boundary/folsom):
     * All metric types: `gauge`, `counter`, `meter`, `histogram` and `history`
     * All VM metrics: `memory`,`statistics`, `process_info`, `system_info` and `port_info`
-* A simple callback-based Graphsom Metrics API is available for custom
+* A simple callback-based **Graphsom Metrics API** is available for custom
   user-defined metrics
 * Support for [estatsd](https://github.com/RJ/estatsd) coming soon
 
@@ -55,6 +55,33 @@ Tell graphsom to start reporting:
     graphsom:start_reporting().
     
 Check graphite for the values!!
+
+Graphsom Metrics API
+--------------------
+
+Graphsom metrics API is offered for cases where a custom user-defined
+metric needs to be reported. 
+  
+To register a custom metric:
+
+    graphsom:register_graphsom_metric(MetricName, MODULE, FUN, Params).
+
+Graphsom expects a property list as s response to a call to
+`ModuleName:FunName` with parameters `Params`. Note that `FunName`
+must be exported by the module `MODULE` with the right arity.    
+
+For example, we can use Graphsom API to report the number of worker
+children of an `worker_sup` supervisor, i.e., the result of
+
+    > supervisor:count_children(worker_sup).
+    > [{specs,2},{active,2},{supervisors,1},{workers,1}]
+
+This can be directly registered with graphsom as follows:
+    
+    graphsom:register_graphsom_metric(worker_count, supervisor,
+    count_children, [worker_sup]).
+
+
 
 Configuration
 -------------

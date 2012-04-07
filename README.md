@@ -78,7 +78,8 @@ Reporting Metrics
 
 
 **Interval-Based Reporting**
-Tell graphsom to start reporting. All the registered metrics are
+
+Tell graphsom to start reporting. All registered metrics are
 reported periodically after a configurable interval. 
 
     graphsom:start_reporting().

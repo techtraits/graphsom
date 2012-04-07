@@ -5,6 +5,7 @@
 -export([handle_info/2, terminate/2, code_change/3]).
 
 -export([
+         report_now/0,
          start_reporting/0, 
          stop_reporting/0,
          update_config/2
@@ -52,6 +53,11 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllFolsom
     %% io:format("graphsom_timer Vm Metrics: ~w ~n", [VmMetrics]),
     {ok, State}.
 
+-spec report_now() -> ok | {error, term()}.
+
+report_now() ->
+    gen_server:cast(?MODULE, report_now).
+
 -spec start_reporting() -> ok | {error, term()}.
 
 start_reporting() -> 
@@ -76,7 +82,10 @@ update_config(Key, Val) ->
 handle_cast(report, State = #state{ report = false }) ->
     {noreply, State};
 
-handle_cast(report, State = #state{ graphite_host = GHost, graphite_port = GPort, graphite_prefix = GPrefix, report = true}) ->
+handle_cast(report, State = #state{ report = true }) ->
+    handle_cast(report_now, State);
+
+handle_cast(report_now, State = #state{ graphite_host = GHost, graphite_port = GPort, graphite_prefix = GPrefix}) ->
     MetricValues = graphsom_metrics:all(State#state.vm_metrics, State#state.report_all_folsom_metrics),
     _ = report_metrics(MetricValues, GHost, GPort, GPrefix),
     {noreply, State};

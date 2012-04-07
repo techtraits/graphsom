@@ -25,8 +25,8 @@ Features
 * Currently, only [Graphite](http://graphite.wikidot.com/) is
   supported. Support for other visualization backends coming soon
 
-Usage
------
+Create and Register Folsom Metrics
+----------------------------------
 
 Add some folsom metrics ([folsom API](https://github.com/boundary/folsom)):
 
@@ -50,14 +50,8 @@ To get the list of currently registered folsom metrics
 
     graphsom:registered_metrics().
 
-Tell graphsom to start reporting:
-
-    graphsom:start_reporting().
-    
-Check graphite for the values!!
-
-Graphsom Metrics API
---------------------
+Custom Metrics
+--------------
 
 Graphsom metrics API is offered when a custom user-defined
 metric needs to be reported. 
@@ -78,6 +72,23 @@ For example, we can use Graphsom API to report the number children of a `worker_
 This can be directly registered with graphsom as follows:
     
     graphsom:register_graphsom_metric(worker_count, supervisor, count_children, [worker_sup]).
+
+Reporting Metrics
+-----------------
+
+
+**Interval-Based Reporting**
+Tell graphsom to start reporting. All the registered metrics are
+reported periodically after a configurable interval. 
+
+    graphsom:start_reporting().
+    
+**Manual Reporting**    
+
+    graphsom:report_now().
+    
+
+Check graphite for the values!!
 
 Configuration
 -------------

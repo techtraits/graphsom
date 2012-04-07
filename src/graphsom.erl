@@ -6,7 +6,8 @@
          register_graphsom_metric/3,
          register_graphsom_metric/4,
          deregister_graphsom_metric/1,
-         registered_metrics/0, 
+         registered_metrics/0,
+         report_now/0,
          start_reporting/0,
          stop_reporting/0,
          update_config/2]).
@@ -46,6 +47,11 @@ deregister_graphsom_metric(Name) ->
 
 registered_metrics() ->
    graphsom_metrics:registered_metrics().
+
+-spec report_now() -> ok | {error, term()}.
+
+report_now() ->
+    graphsom_timer:report_now().
 
 -spec start_reporting() -> ok | {error, term()}.
 

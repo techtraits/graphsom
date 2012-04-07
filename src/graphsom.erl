@@ -42,7 +42,7 @@ register_graphsom_metric(Name, Module, Func, Params) when is_list(Params) ->
 deregister_graphsom_metric(Name) ->
     graphsom_metrics:deregister(Name).
 
--spec registered_metrics() -> ok | {error, term()}.
+-spec registered_metrics() -> proplist().
 
 registered_metrics() ->
    graphsom_metrics:registered_metrics().

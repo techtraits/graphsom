@@ -22,12 +22,14 @@ register(MetricName, Module, FunName, Params) ->
                                module = Module, 
                                func = FunName,
                                params = Params},
-    true = ets:insert(?GRAPHSOM_METRICS, GMetric).
+    true = ets:insert(?GRAPHSOM_METRICS, GMetric),
+    ok.
 
 -spec deregister(atom()) -> ok.
 
 deregister(MetricName) ->
-    _ = ets:delete(?GRAPHSOM_METRICS, MetricName).
+    _ = ets:delete(?GRAPHSOM_METRICS, MetricName),
+    ok.
 
 -spec registered_metrics() -> list().
 
@@ -80,13 +82,15 @@ registered_metrics_() ->
 
 create_tables_() ->
     Tables = [{?GRAPHSOM_FOLSOM_METRICS, 1}, {?GRAPHSOM_METRICS, 2}],
-    _ = [create_table_(Name, KeyPos) || {Name, KeyPos} <- Tables].
+    _ = [create_table_(Name, KeyPos) || {Name, KeyPos} <- Tables],
+    ok.
 
 -spec create_table_(atom(), integer()) -> ok.
 
 create_table_(Name, KeyPos) 
   when is_atom(Name),
        is_integer(KeyPos) ->
-    _ = ets:new(Name, [set, named_table, public, {keypos, KeyPos}, {read_concurrency,true}]).
+    _ = ets:new(Name, [set, named_table, public, {keypos, KeyPos}, {read_concurrency,true}]),
+    ok.
 
     

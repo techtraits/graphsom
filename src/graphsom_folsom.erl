@@ -14,15 +14,17 @@
 registered_metrics() ->
     [ Metric || {Metric} <- ets:tab2list(?GRAPHSOM_FOLSOM_METRICS)].
 
--spec register(folsom_metric_name_type()) -> ok | {error, term()}.
+-spec register(folsom_metric_name_type()) -> ok.
 
 register(FolsomMetric) -> 
-    true = ets:insert(?GRAPHSOM_FOLSOM_METRICS, {FolsomMetric}).
+    true = ets:insert(?GRAPHSOM_FOLSOM_METRICS, {FolsomMetric}),
+    ok.
 
--spec deregister(folsom_metric_name_type()) -> ok | {error, term()}.
+-spec deregister(folsom_metric_name_type()) -> ok.
 
 deregister(FolsomMetric) -> 
-    true = ets:delete(?GRAPHSOM_FOLSOM_METRICS, FolsomMetric).
+    true = ets:delete(?GRAPHSOM_FOLSOM_METRICS, FolsomMetric),
+    ok.
 
 -spec metric_values(list(), list()) -> proplist().
 

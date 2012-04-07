@@ -28,7 +28,6 @@ deregister(FolsomMetric) ->
     true = ets:delete(?GRAPHSOM_FOLSOM_METRICS, FolsomMetric),
     ok.
 
-
 -spec register_type_handler(folsom_metric_type(), atom(), atom()) -> ok.
 
 register_type_handler(MetricType, Module, FunName) ->
@@ -73,12 +72,27 @@ metric_value(MetricName) ->
 %% Export a generic handler for converting metrics to a propertylist
 
 -spec metric_value(folsom_metric_name_type(), folsom_metric_type()) -> proplist().
-
-metric_value(MetricName, histogram) ->
-    HistValues  = folsom_metrics:get_metric_value(MetricName),
-    [{count, length(HistValues)},
-     {mean_val, graphsom_util:mean(HistValues)}];
  
-metric_value(MetricName, _Type) ->
-    folsom_metrics:get_metric_value(MetricName).
+metric_value(MetricName, MetricType) ->
+    case ets:lookup(?GRAPHSOM_FOLSOM_TYPE_HANDLERS, MetricType) of
+        [#graphsom_folsom_type_handler{ module = Module, func = Func }] ->
+            handle_folsom_metric(MetricName, MetricType, Module, Func);
+        _ ->
+            folsom_metrics:get_metric_value(MetricName)
+    end.
+
+-spec handle_folsom_metric(folsom_metric_name_type(), folsom_metric_name_type(), atom(), atom()) -> list().
+             
+handle_folsom_metric(MetricName, MetricType, Module, Func) ->
+    catch case erlang:apply(Module, Func, [MetricName, MetricType]) of
+              {'EXIT', _Reason} ->
+                  io:format("Unable to get value for metric using folsom handler: ~p, reason: ~w~n", [MetricName, _Reason]),
+                  [];
+              Val ->
+                  Val
+          end.
+
+  
+
+
 

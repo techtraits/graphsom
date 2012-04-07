@@ -9,6 +9,8 @@ Support for multiple backends will be added soon.
 Note: [Graphite](http://graphite.wikidot.com/) is good, despite the
 website being really ghetto. 
 
+**[Getting Started Guide](https://github.com/techtraits/graphsom/wiki/Getting-Started-Guide)**
+
 Status
 ------
 
@@ -77,63 +79,6 @@ metric names. For example, "response_time" would be reported as
 * If `report_all_folsom_metrics` is set to `true`, graphsom reports all folsom
   metrics that exist at the time of reporting. Alternatively,
   `register_folsom_metric` API can be used for reporting selective metrics to graphite.
-
-Playing around
---------------
-
-Prerequisites 
-
-* [Download](https://launchpad.net/graphite/+download),
-  [Install](http://graphite.wikidot.com/installation) and run graphite
-* [Download](https://github.com/downloads/basho/rebar/rebar) or [build](https://github.com/basho/rebar) rebar
-* Clone [graphsom](https://github.com/techtraits/graphsom.git)
-
-Setup [rebar](https://github.com/basho/rebar) or make [rebar](https://github.com/basho/rebar) executable from source  
-
-    cd graphsom
-	chmod u+x rebar  
-    
-Get dependencies & compile 
-
-    mkdir deps
-    ./rebar get-deps
-    ./rebar compile
-
-Create a release
-
-    mkdir rel
-    cd rel
-    ../rebar create-node nodeid=graphsom
-    
-At this point, the release folder `rel` should contain `reltool.config` (release
-tool configuration file). We need to tell `reltool` where to
-find `graphsom` and `folsom` applications. This can be done by
-specifying `lib_dir` in `reltool.config` as follows:
-
-    {lib_dirs, ["../../", "../deps/"]},
-    
-Since by default applications are not automatically added to the
-release, we can add folsom in our release by adding the following line
-in `reltool.config`:
-
-    {app, stdlib, [{incl_cond, include}]},
-    {app, kernel, [{incl_cond, include}]},
-    {app, folsom, [{incl_cond, include}]},
-    **{app, folsom, [{incl_cond, include}]},**
-    {app, graphsom, [{incl_cond, include}]}
-    
-Generating a release (a self-containing deployable directory
-containing all the applications in your node):
-
-    ./rebar generate
-
-Running graphsom node:
-
-    ./rel/graphsom/bin/graphsom console
-
-Alternatively, Makefile is provided for convenience. 
-
-Note: Graphsom takes care of starting `folsom`.
 
 Authors 
 -------

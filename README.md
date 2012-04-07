@@ -77,8 +77,7 @@ For example, we can use Graphsom API to report the number children of a `worker_
 
 This can be directly registered with graphsom as follows:
     
-    graphsom:register_graphsom_metric(worker_count, supervisor,
-    count_children, [worker_sup]).
+    graphsom:register_graphsom_metric(worker_count, supervisor, count_children, [worker_sup]).
 
 Configuration
 -------------

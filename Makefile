@@ -1,15 +1,15 @@
 REBAR=./rebar
 DIALYZER=`which dialyzer || ./dialyzer`
 
-all: deps compile
+all: clean get-deps compile
 
-deps:
+get-deps:
 	@$(REBAR) get-deps
 
 compile:
 	@$(REBAR) compile
 
-release: clean compile
+release: clean all
 	@$(REBAR) generate
 
 run: release

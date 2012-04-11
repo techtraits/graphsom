@@ -16,6 +16,7 @@ Features
         * All metric types: `gauge`, `counter`, `meter`, `histogram` and `history`
         * All VM metrics: `memory`,`statistics`, `process_info`,
           `system_info` and `port_info`
+        * Support for custom handlers for folsom metric types
     * A simple callback-based Graphsom Metrics API is available for
       custom user-defined metrics
 
@@ -58,6 +59,16 @@ To get the list of currently registered folsom metrics
     
 graphsom:registered_metrics().
 ```
+
+To register a specific folsom type handler:
+
+```erlang
+
+graphsom:register_folsom_type_handler(TYPE, MODULE, FUN).
+```
+The API can be used to register a handler for all registered folsom metrics
+of a certain type. Graphsom calls MODULE:FUN/2 with metric name and
+type to get its value. 
 
 Custom Metrics API
 ------------------

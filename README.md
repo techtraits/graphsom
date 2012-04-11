@@ -32,7 +32,6 @@ Create some folsom metrics ([folsom API](https://github.com/boundary/folsom)):
     
 folsom_metrics:new_counter(metric_name_1).
 folsom_metrics:new_meter(metric_name_2).
-
 ```
 Update values for the metrics:
 
@@ -40,28 +39,24 @@ Update values for the metrics:
 	
 folsom_metrics:notify({metric_name_1, {inc, 100}}).
 folsom_metrics:notify({metric_name_2, 300}).
-
 ```
 Register folsom metric with `graphsom` for reporting:
 
 ```erlang
 
 graphsom:register_folsom_metric(metric_name_1).
-
 ```
 De-register folsom metric:
 
 ```erlang
 
 graphsom:deregister_folsom_metric(metric_name_1).
-
 ```
 To get the list of currently registered folsom metrics
 
 ```erlang
     
 graphsom:registered_metrics().
-
 ```
 
 Custom Metrics API
@@ -74,7 +69,6 @@ To register a custom metric:
 ```erlang
     
 graphsom:register_graphsom_metric(METRIC_NAME, MODULE, FUN, PARAMS).
-
 ```
 Graphsom expects a property list as a response to the callback
 `MODULE:FUN` with `PARAMS` as parameters. 
@@ -86,14 +80,12 @@ For example, we can use Graphsom API to report the number children of a `worker_
     
 supervisor:count_children(worker_sup).
 [{specs,2},{active,2},{supervisors,1},{workers,1}]
-
 ```
 This can be directly registered with graphsom as follows:
 
 ```erlang    
     
 graphsom:register_graphsom_metric(worker_count, supervisor, count_children, [worker_sup]).
-
 ```
 Reporting Metrics
 -----------------
@@ -106,14 +98,12 @@ reported periodically after a configurable interval.
 ```erlang
 
 graphsom:start_reporting().
-
 ```    
 **Manual Reporting**    
 
 ```erlang
 
 graphsom:report_now().
-    
 ```    
 
 Check graphite for the values!!

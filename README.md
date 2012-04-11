@@ -27,6 +27,7 @@ Folsom Metrics API
 ------------------
 
 Create some folsom metrics ([folsom API](https://github.com/boundary/folsom)):
+
 ```erlang
     
 folsom_metrics:new_counter(metric_name_1).
@@ -34,6 +35,7 @@ folsom_metrics:new_meter(metric_name_2).
 
 ```
 Update values for the metrics:
+
 ```erlang
 	
 folsom_metrics:notify({metric_name_1, {inc, 100}}).
@@ -41,6 +43,7 @@ folsom_metrics:notify({metric_name_2, 300}).
 
 ```
 Register folsom metric with `graphsom` for reporting:
+
 ```erlang
 
 graphsom:register_folsom_metric(metric_name_1).

@@ -28,25 +28,37 @@ Folsom Metrics API
 
 Create some folsom metrics ([folsom API](https://github.com/boundary/folsom)):
 ```erlang
-    folsom_metrics:new_counter(metric_name_1).
-    folsom_metrics:new_meter(metric_name_2).
+    
+folsom_metrics:new_counter(metric_name_1).
+folsom_metrics:new_meter(metric_name_2).
+
 ```
 Update values for the metrics:
 ```erlang
-	folsom_metrics:notify({metric_name_1, {inc, 100}}).
-    folsom_metrics:notify({metric_name_2, 300}).
+	
+folsom_metrics:notify({metric_name_1, {inc, 100}}).
+folsom_metrics:notify({metric_name_2, 300}).
+
 ```
 Register folsom metric with `graphsom` for reporting:
 ```erlang
-    graphsom:register_folsom_metric(metric_name_1).
+
+graphsom:register_folsom_metric(metric_name_1).
+
 ```
 De-register folsom metric:
+
 ```erlang
-    graphsom:deregister_folsom_metric(metric_name_1).
+
+graphsom:deregister_folsom_metric(metric_name_1).
+
 ```
 To get the list of currently registered folsom metrics
+
 ```erlang
-    graphsom:registered_metrics().
+    
+graphsom:registered_metrics().
+
 ```
 
 Custom Metrics API
@@ -55,21 +67,30 @@ Custom Metrics API
 Graphsom metrics API is offered when a custom user-defined metric needs to be reported. 
   
 To register a custom metric:
+
 ```erlang
-    graphsom:register_graphsom_metric(METRIC_NAME, MODULE, FUN, PARAMS).
+    
+graphsom:register_graphsom_metric(METRIC_NAME, MODULE, FUN, PARAMS).
+
 ```
 Graphsom expects a property list as a response to the callback
 `MODULE:FUN` with `PARAMS` as parameters. 
 Note that `FUN` must be exported by the module `MODULE` with the a correct arity.    
 
 For example, we can use Graphsom API to report the number children of a `worker_sup` supervisor, i.e., the result of
+
 ```erlang
-    supervisor:count_children(worker_sup).
-    [{specs,2},{active,2},{supervisors,1},{workers,1}]
+    
+supervisor:count_children(worker_sup).
+[{specs,2},{active,2},{supervisors,1},{workers,1}]
+
 ```
 This can be directly registered with graphsom as follows:
+
 ```erlang    
-    graphsom:register_graphsom_metric(worker_count, supervisor, count_children, [worker_sup]).
+    
+graphsom:register_graphsom_metric(worker_count, supervisor, count_children, [worker_sup]).
+
 ```
 Reporting Metrics
 -----------------
@@ -78,12 +99,18 @@ Reporting Metrics
 
 Tell graphsom to start reporting. All registered metrics are
 reported periodically after a configurable interval. 
+
 ```erlang
-    graphsom:start_reporting().
+
+graphsom:start_reporting().
+
 ```    
 **Manual Reporting**    
+
 ```erlang
-    graphsom:report_now().
+
+graphsom:report_now().
+    
 ```    
 
 Check graphite for the values!!

@@ -98,13 +98,18 @@ create_table_(Name, KeyPos)
 
 -spec default_folsom_handler(folsom_metric_name_type(), folsom_metric_type()) -> list().
 
-default_folsom_handler(MetricName, histogram) ->
-    Values  = folsom_metrics:get_metric_value(MetricName),
+default_folsom_handler(Name, histogram) ->
+    Values  = folsom_metrics:get_metric_value(Name),
+    Stats = folsom_metrics:get_histogram_statistics(Name),
     [{count, length(Values)},
-     {mean_val, graphsom_util:mean(Values)}];
+     {min, proplists:get_value(min, Stats)},
+     {max, proplists:get_value(max, Stats)},
+     {mean, proplists:get_value(arithmetic_mean, Stats)},
+     {percentile, proplists:get_value(percentile, Stats)}
+    ];
   
-default_folsom_handler(MetricName, history) ->
-    Values = folsom_metrics:get_metric_value(MetricName),
+default_folsom_handler(Name, history) ->
+    Values = folsom_metrics:get_metric_value(Name),
     [{count, length(Values)}].
 
     

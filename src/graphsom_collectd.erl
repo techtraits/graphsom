@@ -23,8 +23,8 @@ stringify_proplist_metric(Name, {SubName, Value}, Prefix, Interval, Time, Acc) w
 stringify_proplist_metric(Name, L = [H | T], Prefix, Interval, Time, Acc) ->
     case graphsom_util:is_num_list(L) of
         true ->
-            VStr = [io_lib:format(":~w", [V]) || V <- L],
-            lists:flatten(Acc ++ io_lib:format("PUTVAL ~s/~s interval=~w ~w", [Prefix, Name, Interval, Time]) ++ VStr ++ "\n");
+            VStr = [io_lib:format(":~w", [V]) || V <- L] ++ "\n",
+            lists:flatten(Acc ++ io_lib:format("PUTVAL ~s/~s interval=~w ~w", [Prefix, Name, Interval, Time]) ++ VStr);
         _ ->        
             Acc1 = stringify_proplist_metric(Name, H, Prefix, Interval, Time, Acc),
             stringify_proplist_metric(Name, T, Prefix, Interval, Time, Acc1)

@@ -3,7 +3,9 @@
 -include("graphsom.hrl").
 -include("graphsom_config.hrl").
 
--export([init/0, get_config/1]).
+-export([init/0, get_config/1, report_to/0]).
+
+%% PUBLIC API %%%%%%
 
 -spec init() -> ok.
 
@@ -23,7 +25,22 @@ get_config(B) ->
         _  ->
             []
     end.
+
+-spec report_to() -> list().
+
+report_to() ->
+    lookup(report_to, ?GRAPHSOM_CONFIGS, []).
     
+-spec lookup(atom(), atom(), term()) -> term().
+
+lookup(Key, Tab, Default) ->
+    case ets:lookup(Tab, report_to) of
+        [Config] ->
+            proplists:get_value(Key, Config, Default);
+        _ ->
+            Default
+    end.
+
 -spec save_config(atom(), proplist()) -> ok.
 
 save_config(B, Conf) ->

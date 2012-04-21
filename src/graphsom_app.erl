@@ -21,8 +21,7 @@ start(_StartType, _StartArgs) ->
 -spec start() -> {ok, pid()} | {error, term()}.
 
 start() ->
-    Config = application:get_all_env(graphsom),
-    graphsom_sup:start_link(Config).
+    graphsom_sup:start_link().
 
 -spec stop([]) -> ok. 
 

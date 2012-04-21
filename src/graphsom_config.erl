@@ -8,7 +8,8 @@
          get_config/1, 
          report_to/0,
          min_interval/0,
-         lookup_key/3
+         lookup_key/3,
+         update_key/3
         ]).
 
 %% PUBLIC API %%%%%%
@@ -38,6 +39,18 @@ min_interval() ->
             lists:min(Ivls)
     end.
     
+-spec update_key(atom(), term(), atom()) -> ok | {error, config_not_found}.
+
+update_key(Key, Val, Conf) ->
+    case get_config(Conf) of
+        [] ->
+            {error, config_not_found};
+        C ->
+            C1 = proplists:delete(Key, C) ++ [{Key, Val}],
+            true = ets:insert(?GRAPHSOM_CONFIGS, {Conf, C1}),
+            ok
+    end.
+
 -spec lookup_key(atom(), atom(), term()) -> term().
 
 lookup_key(Key, ConfKey, Default) 

@@ -1,6 +1,7 @@
 %% Default configurations for various visualization adaptors
 %% Currently Graphite and Collectd
 
+-define(GRAPHSOM_CONFIG_KEY, graphsom).
 -define(GRAPHSOM_BACKENDS, [graphite, collectd]).
 
 -define(GRAPHSOM_GRAPHITE, 

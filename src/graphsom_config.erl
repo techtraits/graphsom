@@ -3,7 +3,13 @@
 -include("graphsom.hrl").
 -include("graphsom_config.hrl").
 
--export([init/0, get_config/1, report_to/0]).
+-export([
+         init/0, 
+         get_config/1, 
+         report_to/0,
+         min_interval/0,
+         lookup_key/3
+        ]).
 
 %% PUBLIC API %%%%%%
 
@@ -12,33 +18,41 @@
 init() ->
     AppConf = application:get_all_env(graphsom),
     %% extract and save application-wide graphsom config
-    save_config(graphsom, graphsom_config(AppConf)),
+    save_config(?GRAPHSOM_CONFIG_KEY, graphsom_config(AppConf)),
     %% save config for each visualization backend
-    [save_config(B, config(B, AppConf)) || B <- ?GRAPHSOM_BACKENDS].
+    [save_config(Key, config(Key, AppConf)) || Key <- ?GRAPHSOM_BACKENDS].
     
--spec get_config(atom()) -> proplist().
-
-get_config(B) ->
-    case ets:lookup(?GRAPHSOM_CONFIGS, B) of
-        [{B, Config}] ->
-            Config;
-        _  ->
-            []
-    end.
-
 -spec report_to() -> list().
 
 report_to() ->
-    lookup(report_to, ?GRAPHSOM_CONFIGS, []).
-    
--spec lookup(atom(), atom(), term()) -> term().
+    lookup_key(report_to, ?GRAPHSOM_CONFIG_KEY, []).
 
-lookup(Key, Tab, Default) ->
-    case ets:lookup(Tab, report_to) of
-        [Config] ->
-            proplists:get_value(Key, Config, Default);
-        _ ->
-            Default
+-spec min_interval() -> number() | undefined.
+
+min_interval() ->
+    L = [lookup_key(report_interval, K, 0) || K <- report_to()],
+    case L of
+        [] ->
+            undefined;
+        Ivls ->
+            lists:min(Ivls)
+    end.
+    
+-spec lookup_key(atom(), atom(), term()) -> term().
+
+lookup_key(Key, ConfKey, Default) 
+  when is_atom(Key), 
+       is_atom(ConfKey)->
+    proplists:get_value(Key, get_config(ConfKey), Default).
+
+-spec get_config(atom()) -> proplist().
+
+get_config(ConfKey) ->
+    case ets:lookup(?GRAPHSOM_CONFIGS, ConfKey) of
+        [{ConfKey, Config}] ->
+            Config;
+        _  ->
+            []
     end.
 
 -spec save_config(atom(), proplist()) -> ok.

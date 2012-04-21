@@ -15,7 +15,6 @@
 -spec init() -> ok.
 
 init() -> 
-    create_tables_(),
     _ = [ graphsom_folsom:register_type_handler(Type, ?MODULE, default_folsom_handler) || Type <- [histogram, history]],
     ok.
 
@@ -81,20 +80,6 @@ metric_value_(#graphsom_metric{ name = Name, module = Module, func = Func, param
 
 registered_metrics_() ->
     [Metric || Metric <- ets:tab2list(?GRAPHSOM_METRICS)].
-
--spec create_tables_() -> ok.
-
-create_tables_() ->
-    _ = [create_table_(Name, KeyPos) || {Name, KeyPos} <- ?GRAPHSOM_ETS_TABLES],
-    ok.
-
--spec create_table_(atom(), integer()) -> ok.
-
-create_table_(Name, KeyPos) 
-  when is_atom(Name),
-       is_integer(KeyPos) ->
-    _ = ets:new(Name, [set, named_table, public, {keypos, KeyPos}, {read_concurrency,true}]),
-    ok.
 
 -spec default_folsom_handler(folsom_metric_name_type(), folsom_metric_type()) -> list().
 

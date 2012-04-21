@@ -31,7 +31,7 @@ deregister(FolsomMetric) ->
 -spec register_type_handler(folsom_metric_type(), atom(), atom()) -> ok.
 
 register_type_handler(MetricType, Module, FunName) ->
-    FolsomHandler = #graphsom_folsom_type_handler{ type = MetricType,  
+    FolsomHandler = #graphsom_folsom_type_handler{ type = MetricType, 
                                                    module = Module, 
                                                    func = FunName },
     true = ets:insert(?GRAPHSOM_FOLSOM_TYPE_HANDLERS, FolsomHandler),

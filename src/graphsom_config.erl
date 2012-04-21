@@ -8,7 +8,10 @@
 -spec init() -> ok.
 
 init() ->
-    AppConf = application:get_all_env(graphsom), 
+    AppConf = application:get_all_env(graphsom),
+    %% extract and save application-wide graphsom config
+    save_config(graphsom, graphsom_config(AppConf)),
+    %% save config for each visualization backend
     [save_config(B, config(B, AppConf)) || B <- ?GRAPHSOM_BACKENDS].
     
 -spec get_config(atom()) -> proplist().
@@ -26,6 +29,11 @@ get_config(B) ->
 save_config(B, Conf) ->
     true = ets:insert(?GRAPHSOM_CONFIGS, {B, Conf}),
     ok.
+
+-spec graphsom_config(proplist()) -> proplist().
+
+graphsom_config(AppConfig) ->
+    [{report_to, proplists:get_value(report_to, AppConfig, [])}].
 
 -spec config(atom(), proplist()) -> proplist().
 
@@ -50,3 +58,4 @@ default_config(collectd) -> ?GRAPHSOM_COLLECTD;
 default_config(_) -> []. 
 
 %% UNIT TESTS %%%%%%
+

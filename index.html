@@ -1,0 +1,237 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Graphsom by techtraits</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/techtraits/graphsom">Fork On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/techtraits/graphsom/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/techtraits/graphsom/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Graphsom</h1>
+          <p>A metrics management and reporting system for Erlang</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/techtraits">techtraits</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>graphsom</h1>
+
+<p>graphsom is a flexible metrics management system for Erlang
+applications. It's main goal is for easier collection, management and
+reporting of metrics to various backends. </p>
+
+<p><strong><a href="https://github.com/techtraits/graphsom/wiki/Getting-Started-Guide">Getting started guide</a></strong></p>
+
+<h2>Features</h2>
+
+<ul>
+<li>
+<p>Metric Systems Support</p>
+
+<ul>
+<li>
+<a href="https://github.com/boundary/folsom">Folsom Metrics</a>:
+
+<ul>
+<li>All metric types: <code>gauge</code>, <code>counter</code>, <code>meter</code>, <code>histogram</code> and <code>history</code>
+</li>
+<li>All VM metrics: <code>memory</code>,<code>statistics</code>, <code>process_info</code>,
+<code>system_info</code> and <code>port_info</code>
+</li>
+<li>Support for custom handlers for folsom metric types</li>
+</ul>
+</li>
+<li>A simple callback-based Graphsom Metrics API is available for
+custom user-defined metrics</li>
+</ul>
+</li>
+<li>
+<p>Visualization Backends  </p>
+
+<ul>
+<li><a href="http://graphite.wikidot.com/">Graphite</a></li>
+<li>Others coming soon</li>
+</ul>
+</li>
+</ul><h2>Folsom Metrics API</h2>
+
+<p>Create some folsom metrics (<a href="https://github.com/boundary/folsom">folsom API</a>):</p>
+
+<div class="highlight">
+<pre>
+<span class="nn">folsom_metrics</span><span class="p">:</span><span class="n">new_counter</span><span class="p">(</span><span class="n">metric_name_1</span><span class="p">).</span>
+<span class="nn">folsom_metrics</span><span class="p">:</span><span class="n">new_meter</span><span class="p">(</span><span class="n">metric_name_2</span><span class="p">).</span>
+</pre>
+</div>
+
+
+<p>Update values for the metrics:</p>
+
+<div class="highlight">
+<pre>
+<span class="nn">folsom_metrics</span><span class="p">:</span><span class="n">notify</span><span class="p">({</span><span class="n">metric_name_1</span><span class="p">,</span> <span class="p">{</span><span class="n">inc</span><span class="p">,</span> <span class="mi">100</span><span class="p">}}).</span>
+<span class="nn">folsom_metrics</span><span class="p">:</span><span class="n">notify</span><span class="p">({</span><span class="n">metric_name_2</span><span class="p">,</span> <span class="mi">300</span><span class="p">}).</span>
+</pre>
+</div>
+
+
+<p>Register folsom metric with <code>graphsom</code> for reporting:</p>
+
+<div class="highlight">
+<pre>
+<span class="nn">graphsom</span><span class="p">:</span><span class="n">register_folsom_metric</span><span class="p">(</span><span class="n">metric_name_1</span><span class="p">).</span>
+</pre>
+</div>
+
+
+<p>De-register folsom metric:</p>
+
+<div class="highlight">
+<pre>
+<span class="nn">graphsom</span><span class="p">:</span><span class="n">deregister_folsom_metric</span><span class="p">(</span><span class="n">metric_name_1</span><span class="p">).</span>
+</pre>
+</div>
+
+
+<p>To get the list of currently registered folsom metrics</p>
+
+<div class="highlight">
+<pre>
+<span class="nn">graphsom</span><span class="p">:</span><span class="n">registered_metrics</span><span class="p">().</span>
+</pre>
+</div>
+
+
+<p>To register a specific folsom type handler:</p>
+
+<div class="highlight">
+<pre>
+<span class="nn">graphsom</span><span class="p">:</span><span class="n">register_folsom_type_handler</span><span class="p">(</span><span class="nv">TYPE</span><span class="p">,</span> <span class="nv">MODULE</span><span class="p">,</span> <span class="nv">FUN</span><span class="p">).</span>
+</pre>
+</div>
+
+
+<p>The API can be used to register a handler for all registered folsom metrics
+of a certain type. Graphsom calls MODULE:FUN/2 with metric name and
+type to get its value. </p>
+
+<h2>Custom Metrics API</h2>
+
+<p>Graphsom metrics API is offered when a custom user-defined metric needs to be reported. </p>
+
+<p>To register a custom metric:</p>
+
+<div class="highlight">
+<pre>
+<span class="nn">graphsom</span><span class="p">:</span><span class="n">register_graphsom_metric</span><span class="p">(</span><span class="nv">METRIC_NAME</span><span class="p">,</span> <span class="nv">MODULE</span><span class="p">,</span> <span class="nv">FUN</span><span class="p">,</span> <span class="nv">PARAMS</span><span class="p">).</span>
+</pre>
+</div>
+
+
+<p>Graphsom expects a property list as a response to the callback
+<code>MODULE:FUN</code> with <code>PARAMS</code> as parameters. 
+Note that <code>FUN</code> must be exported by the module <code>MODULE</code> with the a correct arity.    </p>
+
+<p>For example, we can use Graphsom API to report the number children of a <code>worker_sup</code> supervisor, i.e., the result of</p>
+
+<div class="highlight">
+<pre>
+<span class="nn">supervisor</span><span class="p">:</span><span class="n">count_children</span><span class="p">(</span><span class="n">worker_sup</span><span class="p">).</span>
+<span class="p">[{</span><span class="n">specs</span><span class="p">,</span><span class="mi">2</span><span class="p">},{</span><span class="n">active</span><span class="p">,</span><span class="mi">2</span><span class="p">},{</span><span class="n">supervisors</span><span class="p">,</span><span class="mi">1</span><span class="p">},{</span><span class="n">workers</span><span class="p">,</span><span class="mi">1</span><span class="p">}]</span>
+</pre>
+</div>
+
+
+<p>This can be directly registered with graphsom as follows:</p>
+
+<div class="highlight">
+<pre>
+<span class="nn">graphsom</span><span class="p">:</span><span class="n">register_graphsom_metric</span><span class="p">(</span><span class="n">worker_count</span><span class="p">,</span> <span class="n">supervisor</span><span class="p">,</span> <span class="n">count_children</span><span class="p">,</span> <span class="p">[</span><span class="n">worker_sup</span><span class="p">]).</span>
+</pre>
+</div>
+
+
+<h2>Reporting Metrics</h2>
+
+<p><strong>Interval-Based Reporting</strong></p>
+
+<p>Tell graphsom to start reporting. All registered metrics are
+reported periodically after a configurable interval. </p>
+
+<div class="highlight">
+<pre>
+<span class="nn">graphsom</span><span class="p">:</span><span class="n">start_reporting</span><span class="p">().</span>
+</pre>
+</div>
+
+
+<p><strong>Manual Reporting</strong>    </p>
+
+<div class="highlight">
+<pre>
+<span class="nn">graphsom</span><span class="p">:</span><span class="n">report_now</span><span class="p">().</span>
+</pre>
+</div>
+
+
+<p>Check graphite for the values!!</p>
+
+<h2>Configuration</h2>
+
+<p>The configuration parameters for graphsom can be added to application
+config file (<code>[RELEASE]/files/sys.config</code>). An example configuration:</p>
+
+<pre><code>{graphsom, [
+         {report_interval, 30000},     %% report interval (ms)
+         {graphite_host, "techtraits.com"}, %% defaults to localhost
+         {graphite_port, 2003},        %% defaults to 2003
+         {graphite_prefix, "graphsom"}, %% prefix added to all metrics
+         {vm_metrics, [memory, statistics]},   %% defaults to []
+         {report_all_folsom_metrics, false}   %% defaults to false
+        ]}
+</code></pre>
+
+<ul>
+<li><p><code>graphite_prefix</code> can be used to specify the prefix prepended to all
+metric names. For example, "response_time" would be reported as
+"graphsom.response_time". </p></li>
+<li><p><code>vm_metrics</code> can be used to report folsom VM metrics</p></li>
+<li><p>If <code>report_all_folsom_metrics</code> is set to <code>true</code>, graphsom reports all folsom
+metrics that exist at the time of reporting. Alternatively,
+<code>register_folsom_metric</code> API can be used for reporting selective metrics to graphite.</p></li>
+</ul><h2>Authors </h2>
+
+<p>Bilal Sheikh (<a href="mailto:bilal@techtraits.com">bilal@techtraits.com</a>)<br>
+Usman Ismail (<a href="mailto:usman@techtraits.com">usman@techtraits.com</a>)</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    
+  </body>
+</html>

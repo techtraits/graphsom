@@ -45,7 +45,9 @@ registered_metrics() ->
 -spec all() -> proplist().
 
 all() ->
-    all([], false).
+    V = graphsom_config:vm_metrics(),
+    R = graphsom_config:report_all(),
+    all(V, R).
 
 -spec all(list(), boolean()) -> proplist().
 

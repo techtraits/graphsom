@@ -7,6 +7,8 @@
          init/0, 
          get_config/1, 
          report_to/0,
+         report_all/0,
+         vm_metrics/0,
          min_interval/0,
          lookup_key/3,
          update_key/3
@@ -38,6 +40,18 @@ min_interval() ->
         Ivls ->
             lists:min(Ivls)
     end.
+
+-spec report_all() -> boolean().
+
+report_all() ->
+    L = [lookup_key(report_all, K, false) || K <- report_to()],
+    sets:is_element(true, sets:from_list(L)).
+
+-spec vm_metrics() -> list().
+
+vm_metrics() ->
+    L = [lookup_key(vm_metrics, K, []) || K <- report_to()],
+    sets:to_list(sets:from_list(lists:flatten(L))).
     
 -spec update_key(atom(), term(), atom()) -> ok | {error, config_not_found}.
 

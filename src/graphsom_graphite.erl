@@ -37,3 +37,22 @@ stringify_proplist_metric(MetricName, [MetricValue | T], Prefix, CurTime, Str) -
 
 stringify_proplist_metric(_MetricName, _MetricValue, _Prefix, _CurTime, Str) ->
     Str.
+
+
+%% Internal API
+
+-spec report_metrics(list(), string(), pos_integer(), string()) -> ok | {error | term()}.
+
+report_metrics([], _GHost, _GPort, _Gprefix) ->
+    ok;
+
+report_metrics(MetricValues, GHost, GPort, GPrefix) ->
+    CurTime = graphsom_util:current_time(),
+    MetricStr = stringify_metrics(MetricValues, GPrefix, CurTime),
+    % io:format("Metric string: ~s ~n", [MetricStr]),
+    graphsom_graphite:report(MetricStr, GHost, GPort).
+
+-spec stringify_metrics(list(),  string(), pos_integer()) -> string().
+
+stringify_metrics(MetricValues, GPrefix, CurTime) ->
+    lists:flatten([graphsom_graphite:stringify_proplist_metric(Name, Val, GPrefix, CurTime, "")|| {Name, Val} <- MetricValues]).

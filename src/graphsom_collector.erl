@@ -69,7 +69,10 @@ handle_cast(collect, State = #state{ collect = true }) ->
 
 handle_cast(collect_now, _State) ->
     MetricValues = graphsom_metrics:all(),
-    %% SAVE METRICS
+    TimeNow = graphsom_util:current_time(),
+    %% store a snapshot metrics at this time
+    MetricDump = {graphsom_metrics_dump, TimeNow, MetricValues},
+    true = ets:insert(?GRAPHSOM_METRICS_STORE, MetricDump),
     {noreply, _State};
 
 handle_cast(start_collecting, State = #state{}) ->

@@ -12,7 +12,7 @@
          report_now/0,
          start_reporting/0,
          stop_reporting/0,
-         update_config/2]).
+         update_config/3]).
 
 %% Includes
 
@@ -75,7 +75,7 @@ start_reporting() ->
 stop_reporting() ->
    graphsom_timer:stop_reporting().
 
--spec update_config(atom(), term()) -> ok.
+-spec update_config(atom(), term(), atom()) -> ok.
 
-update_config(Key, Val) ->
-    graphsom_timer:update_config(Key, Val).
+update_config(Key, Val, Backend) ->
+    graphsom_config:update_key(Key, Val, Backend).

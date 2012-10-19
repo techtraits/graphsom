@@ -71,7 +71,7 @@ metric_values_() ->
 metric_value_(#graphsom_metric{ name = Name, module = Module, func = Func, params = Params }) ->
     catch case erlang:apply(Module, Func, Params) of
               {'EXIT', _Reason} ->
-                  io:format("Unable to get value for metric: ~p, reason: ~w~n", [Name, _Reason]),
+                  error_logger:warning_msg("Unable to get value for metric: ~p, reason: ~w~n", [Name, _Reason]),
                   {Name, []};
               Val ->
                   {Name, Val}

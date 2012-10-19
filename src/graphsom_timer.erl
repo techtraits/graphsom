@@ -30,14 +30,14 @@
 -spec start_link(pos_integer(), string(), pos_integer(), string(), list(), boolean()) -> {ok, pid()} | {error, term()}.
 
 start_link(ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllFolsomMetrics) ->
-    %% io:format("graphsom_timer started ~n"),
+    %% error_logger:info_msg("graphsom_timer started ~n"),
     gen_server:start_link({local, ?MODULE}, ?MODULE,  
                           [ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllFolsomMetrics], []).
 
 -spec init(list()) -> {ok, state()}.
 
 init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllFolsomMetrics]) ->
-    %% io:format("graphsom will report stats to ~p:~p every ~p ms ~n",
+    %% error_logger:info_msg("graphsom will report stats to ~p:~p every ~p ms ~n",
     %%          [ GraphiteHost, GraphitePort, ReportIntervalMs ]),
     {ok, Tref} = timer:apply_interval(ReportIntervalMs, gen_server, cast,  [?MODULE, report]),                     
     State = #state{ 
@@ -50,7 +50,7 @@ init([ReportIntervalMs, GraphiteHost, GraphitePort, Prefix, VmMetrics, AllFolsom
       report_all_folsom_metrics = AllFolsomMetrics,
       report = false
      },
-    %% io:format("graphsom_timer Vm Metrics: ~w ~n", [VmMetrics]),
+    %% error_logger:info_msg("graphsom_timer Vm Metrics: ~w ~n", [VmMetrics]),
     {ok, State}.
 
 -spec report_now() -> ok | {error, term()}.
@@ -140,7 +140,7 @@ report_metrics([], _GHost, _GPort, _Gprefix) ->
 report_metrics(MetricValues, GHost, GPort, GPrefix) ->
     CurTime = graphsom_util:current_time(),
     MetricStr = stringify_metrics(MetricValues, GPrefix, CurTime),
-    % io:format("Metric string: ~s ~n", [MetricStr]),
+    % error_logger:info_msg("Metric string: ~s ~n", [MetricStr]),
     graphsom_graphite:report(MetricStr, GHost, GPort).
 
 -spec stringify_metrics(list(),  string(), pos_integer()) -> string().

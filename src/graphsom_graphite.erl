@@ -16,7 +16,7 @@ report(MetricStr, GraphiteHost, GraphitePort) ->
             error_logger:info_msg("Metrics updated to graphite at ~p ~n", [GraphiteHost]),
             ok;
         {error, Reason} ->
-            error_logger:warning_msg("Failed to connect to graphite host ~p for reason ~p ~n", [GraphiteHost, Reason]),
+            error_logger:info_msg("Failed to connect to graphite host ~p for reason ~p ~n", [GraphiteHost, Reason]),
             {error, Reason}
     end. 
 

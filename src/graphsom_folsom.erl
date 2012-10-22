@@ -62,7 +62,7 @@ vm_metric_value(port_info) -> folsom_vm_metrics:get_port_info().
 metric_value(MetricName) ->
     case catch folsom_metrics:get_metric_info(MetricName) of
         {'EXIT', _ } ->
-            io:format("Metric ~s does not exist ~n", [MetricName]),
+            error_logger:warning_msg("Metric ~s does not exist ~n", [MetricName]),
             [];
         [{MetricName, [{type, Type}]}] ->
             metric_value(MetricName, Type)
@@ -86,7 +86,7 @@ metric_value(MetricName, MetricType) ->
 handle_folsom_metric(MetricName, MetricType, Module, Func) ->
     catch case erlang:apply(Module, Func, [MetricName, MetricType]) of
               {'EXIT', _Reason} ->
-                  io:format("Unable to get value for metric using folsom handler: ~p, reason: ~w~n", [MetricName, _Reason]),
+                  error_logger:warning_msg("Unable to get value for metric using folsom handler: ~p, reason: ~w~n", [MetricName, _Reason]),
                   [];
               Val ->
                   Val

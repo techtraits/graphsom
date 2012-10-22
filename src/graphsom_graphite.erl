@@ -13,10 +13,10 @@ report(MetricStr, GraphiteHost, GraphitePort) ->
         {ok, Sock} ->
             _ = gen_tcp:send(Sock, MetricStr),
             gen_tcp:close(Sock),
-            io:format("Metrics updated to graphite at ~p ~n", [GraphiteHost]),
+            error_logger:info_msg("Metrics updated to graphite at ~p", [GraphiteHost]),
             ok;
         {error, Reason} ->
-            io:format("Failed to connect to graphite host ~p for reason ~p ~n", [GraphiteHost, Reason]),
+            error_logger:info_msg("Failed to connect to graphite host ~p for reason ~p", [GraphiteHost, Reason]),
             {error, Reason}
     end. 
 
@@ -25,7 +25,7 @@ report(MetricStr, GraphiteHost, GraphitePort) ->
 -spec stringify_proplist_metric(folsom_metric_name_type(), folsom_metric_value_type(), string(), pos_integer(), string()) -> string().
 
 stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, Str) when is_number(MetricValue) ->
-    io_lib:format("~s~s.~s ~w ~w~n", [Str, Prefix, MetricName, MetricValue, CurTime]);
+    io_lib:format("~s~s.~s ~w ~w", [Str, Prefix, MetricName, MetricValue, CurTime]);
 
 stringify_proplist_metric(MetricName, {SubName, MetricValue}, Prefix, CurTime, Str) ->
     NewPrefix = io_lib:format("~s.~s", [Prefix, MetricName]),

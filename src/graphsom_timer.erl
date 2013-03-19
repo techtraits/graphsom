@@ -146,7 +146,7 @@ report_metrics(MetricValues, GHost, GPort, GPrefix) ->
 -spec stringify_metrics(list(),  string(), pos_integer()) -> string().
 
 stringify_metrics(MetricValues, GPrefix, CurTime) ->
-    io:format("Metrics: ~p~n",[Metrics]),
+    io:format("MetricValues: ~p~n",[MetricValues]),
     lists:flatten([graphsom_graphite:stringify_proplist_metric(Name, Val, GPrefix, CurTime, "")|| {Name, Val} <- MetricValues]).
 
 -spec update_state(atom(), term(), state()) -> ok.

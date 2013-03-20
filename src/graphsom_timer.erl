@@ -140,13 +140,11 @@ report_metrics([], _GHost, _GPort, _Gprefix) ->
 report_metrics(MetricValues, GHost, GPort, GPrefix) ->
     CurTime = graphsom_util:current_time(),
     MetricStr = stringify_metrics(MetricValues, GPrefix, CurTime),
-    % io:format("Metric string: ~s ~n", [MetricStr]),
     graphsom_graphite:report(MetricStr, GHost, GPort).
 
 -spec stringify_metrics(list(),  string(), pos_integer()) -> string().
 
 stringify_metrics(MetricValues, GPrefix, CurTime) ->
-    io:format("MetricValues: ~p~n",[MetricValues]),
     lists:flatten([graphsom_graphite:stringify_proplist_metric(Name, Val, GPrefix, CurTime, "")|| {Name, Val} <- MetricValues]).
 
 -spec update_state(atom(), term(), state()) -> ok.

@@ -25,20 +25,18 @@ report(MetricStr, GraphiteHost, GraphitePort) ->
 -spec stringify_proplist_metric(folsom_metric_name_type(), folsom_metric_value_type(), string(), pos_integer(), string()) -> string().
 
 stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, Str) when is_number(MetricValue) ->
-    io:format("[Str, Prefix, MetricName, MetricValue, CurTime] = [~p, ~p, ~p, ~p, ~p]~n",[Str, Prefix, MetricName, MetricValue, CurTime]),
-    io:format("1~n"),
     io_lib:format("~s~s.~s ~w ~w~n", [Str, Prefix, MetricName, MetricValue, CurTime]);
 
+stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, Str) when is_integer(MetricName) ->
+    stringify_proplist_metric(integer_to_list(MetricName), MetricValue, Prefix, CurTime, Str);
+
 stringify_proplist_metric(MetricName, {SubName, MetricValue}, Prefix, CurTime, Str) ->
-    io:format("2~n"),
     NewPrefix = io_lib:format("~s.~s", [Prefix, MetricName]),
     stringify_proplist_metric(SubName, MetricValue, NewPrefix, CurTime, Str);
 
 stringify_proplist_metric(MetricName, [MetricValue | T], Prefix, CurTime, Str) ->
-    io:format("3~n"),
     Str1 = stringify_proplist_metric(MetricName, MetricValue, Prefix, CurTime, Str),
     stringify_proplist_metric(MetricName, T, Prefix, CurTime, Str1);
 
 stringify_proplist_metric(_MetricName, _MetricValue, _Prefix, _CurTime, Str) ->
-    io:format("4~n"),
     Str.
